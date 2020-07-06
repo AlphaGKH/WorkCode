@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package planning;
+
+message QpSplineSmootherConfig {
+    uint32 spline_order = 1;
+    double max_spline_length = 2;
+    double regularization_weight = 3;
+    double second_derivative_weight = 4;
+    double third_derivative_weight = 5;
+}
+
+message ReferenceLineSmootherConfig {
+
+    double max_constraint_interval = 1;
+    double longitudinal_boundary_bound = 2;
+    double lateral_boundary_bound = 3;
+    // The output resolution for qp smoother reference line.
+    uint32 num_of_total_points = 4;
+    // If a lane width larger than this value times adc width, this lane is considered as a wide lane
+    double wide_lane_threshold_factor = 5;
+    // In a wide lane case, leave the left side (or right side on a left-handed driving map) this amount times adc width
+    double wide_lane_shift_remain_factor = 6;
+    oneof SmootherConfig {
+        QpSplineSmootherConfig qp_spline = 7;
+    }
+}
+
+message ReferenceLineProviderConfig {
+    ReferenceLineSmootherConfig smooth_config = 1;
+    bool enable_reference_line_stitching = 2;
+    bool enable_smooth_reference_line = 3;
+    double smoothed_reference_line_max_diff = 4;
+    uint32 update_counter = 5;
+}
+
+
+
+

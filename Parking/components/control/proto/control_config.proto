@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package control;
+
+
+
+
+message ControlConfig {
+    enum ControllerType {
+        PID = 0;
+        LQR = 1;
+        MPC = 2;
+    };
+    ControllerType controller_type = 1;
+    //oneof controller_config {
+    //}
+}

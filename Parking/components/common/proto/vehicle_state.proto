@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package common;
+
+message VehicleState {
+   double x = 1;
+   double y = 2;
+   double theta = 3;
+   double kappa = 4;
+   double linear_velocity = 5;
+   double linear_acceleration = 6;
+   double timestamp = 7;
+}

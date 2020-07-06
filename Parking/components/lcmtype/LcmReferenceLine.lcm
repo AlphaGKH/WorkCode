@@ -1,0 +1,6 @@
+package planning;
+struct LcmReferenceLine
+{
+    int32_t  num_points;
+    LcmReferencePoint lcm_reference_line[num_points];
+}

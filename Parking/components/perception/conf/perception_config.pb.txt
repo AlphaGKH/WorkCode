@@ -1,0 +1,18 @@
+ogm_config {
+    lidar2d_config {
+        scaningAngle: 190
+        maxDistance: 40
+        linesNumber: 761
+    }
+    # If you change the following, remember to change "display_config.pb.txt" at the same time
+    width: 20
+    length: 40
+    width_resolution: 0.5
+    length_resolution: 1.0
+    left_width: 10 
+    back_lenght: 10
+    enable_ogm_fill: false
+    enable_ogm_expand: true
+}
+
+

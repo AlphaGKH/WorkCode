@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package map;
+
+message CreatedMapConfig{
+  double distance_thod = 1;
+  double theta_thod = 2;
+  double default_lane_left_width = 3;
+  double default_lane_right_width = 4;
+  double default_road_left_width = 5;
+  double default_road_right_width = 6;
+  double default_lane_number = 7;
+  
+}
+
+message CreatedMapPoint {
+  int32 id = 1;
+  double x = 2;
+  double y = 3;
+  double theta = 4;
+  double lane_left_width = 5;
+  double lane_right_width = 6;
+  double road_left_width = 7;
+  double road_right_width = 8;
+  double speed_limit = 9;
+  double lane_number = 10;
+}
+
+message CreatedMap {
+  repeated CreatedMapPoint points = 1;
+}

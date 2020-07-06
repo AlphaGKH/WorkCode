@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package common.adapter;
+
+// Property of a certain Input/Output that will be used by a module.
+message AdapterConfig {
+  enum MessageType {
+    LIDAR2D = 0;
+    GRIDMAP = 1;
+    CHASSIS = 2;
+    COMMAND = 3;
+    TRAJECTORY = 4;
+    REFLINE = 5;
+    MAPPATH = 6;
+  }
+  enum Mode {
+    RECEIVE_ONLY = 0;
+    PUBLISH_ONLY = 1;
+    DUPLEX = 2;
+  }
+  MessageType type = 1;
+  Mode mode = 2;
+  // The max number of received messages to keep in the adapter, this field
+  // is not useful for PUBLISH_ONLY mode messages.
+  int32 message_history_limit = 3;
+  bool latch = 4;
+}
+
+// A config to specify which messages a certain module would consume and
+// produce.
+message AdapterManagerConfig {
+  repeated AdapterConfig config = 1;
+}

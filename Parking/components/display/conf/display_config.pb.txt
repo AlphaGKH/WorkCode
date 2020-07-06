@@ -1,0 +1,17 @@
+global_view_config {
+   map_width : 600
+   map_height : 600;
+   lane_buondary_display : false
+}
+local_view_config {
+   local_view_width : 500
+   local_view_height : 1000
+   local_view_back_length : 300
+   # the followings are copied from perception/conf/perception_config.pb.txt
+   ogm_width: 20
+   ogm_length: 40
+   ogm_width_resolution: 0.5
+   ogm_length_resolution: 1.0
+   ogm_left_width: 10 
+   ogm_back_lenght: 10
+}

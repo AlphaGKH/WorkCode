@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package perception;
+
+import "perception/proto/ogm_config.proto";
+
+message PerceptionConfig {
+    
+    OgmConfig ogm_config = 1;
+}
+
+
+
+
+
+

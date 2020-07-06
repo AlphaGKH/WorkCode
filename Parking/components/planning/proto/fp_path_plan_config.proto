@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package planning;
+
+message ParallelSampleConfig {
+    int32 sample_line_number = 1;
+    double max_sample_length = 2;
+    double sample_interval = 3;
+}
+
+message ParallelCostParam {
+    double center_cost_weight = 1;
+    double lateral_cost_weight = 2;
+    double lateral_collision_cost_weight = 3;
+    double longitudinal_collision_cost_weight = 4;
+    double smooth_cost_weight = 5;
+    double safety_cost_weight = 6;
+    double lateral_collision_buffer = 7;
+
+}
+
+message FpPathPlanConfig {
+    ParallelSampleConfig sample_config = 1;
+    ParallelCostParam cost_param = 2;
+    double preview_distance = 3;
+    bool only_use_stanley = 4;
+    bool enable_steer_rate_limit = 5;
+    double elegant_distance = 6;
+
+}

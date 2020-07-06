@@ -1,0 +1,8 @@
+package perception;
+struct GridMap
+{
+    double  timestamp;
+    int32_t num_rows;
+    int32_t num_cols;
+    boolean  array[num_rows][num_cols];
+}

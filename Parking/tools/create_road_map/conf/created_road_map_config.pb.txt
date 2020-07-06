@@ -1,0 +1,7 @@
+distance_thod : 5
+theta_thod : 0.261799388
+default_lane_left_width : 2.8
+default_lane_right_width : 2.8
+default_road_left_width : 3
+default_road_right_width : 3
+default_lane_number : 1

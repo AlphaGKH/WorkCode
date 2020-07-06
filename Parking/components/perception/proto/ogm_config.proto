@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package perception;
+
+message Lidar2DConfig{
+  double scaningAngle = 1;
+  double maxDistance = 2;
+  int32 linesNumber = 3;
+}
+
+message OgmConfig {
+  Lidar2DConfig lidar2d_config = 1;
+  int32 width = 2;
+  int32 length = 3;
+  double width_resolution = 4;
+  double length_resolution = 5;
+  double left_width = 6;
+  double back_lenght = 7;
+  bool enable_ogm_fill = 8;
+  bool enable_ogm_expand = 9;
+
+}

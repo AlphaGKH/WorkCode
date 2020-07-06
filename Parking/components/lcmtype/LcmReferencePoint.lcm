@@ -1,0 +1,11 @@
+package planning;
+struct LcmReferencePoint
+{
+    double  x;
+    double  y;
+    double  theta;
+    double  lane_left_width; 
+    double  lane_right_width;
+    double  kappa;
+    double  dkappa;
+}

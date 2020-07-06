@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package planning;
+
+message PolySpeedSampleConfig {
+    double time_length = 1;
+    double time_density = 2;
+    double lon_buffer = 3;
+    int32 num_sample_follow_per_timestamp = 4;
+}
+
+message PolySpeedCostParam {
+    double acc_weight = 1;
+    double jerk_weight = 2;
+}
+
+message PolySpeedPlanConfig {
+    PolySpeedSampleConfig sample_config = 1;
+    PolySpeedCostParam cost_param = 2;
+    double top_speed = 3;
+    double max_acceleration = 4;
+    double max_deceleration = 5;
+    double keep_clear_low_speed_penalty = 6;
+    double default_speed_cost = 7;
+    double exceed_speed_penalty = 8;
+    double low_speed_penalty = 9;
+    double accel_penalty = 10;
+    double decel_penalty = 11;
+    double positive_jerk_coeff = 12;
+    double negative_jerk_coeff = 13;
+}

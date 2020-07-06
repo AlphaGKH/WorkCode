@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package display;
+
+message GlobalViewConfig {
+   uint32 map_width = 1;
+   uint32 map_height = 2;
+   bool lane_buondary_display = 3;
+}
+
+message LocalViewConfig {
+   uint32 local_view_width = 1;
+   uint32 local_view_height = 2;
+   uint32 local_view_back_length = 3;
+   uint32 ogm_width = 4;
+   uint32 ogm_length = 5;
+   double ogm_width_resolution = 6;
+   double ogm_length_resolution = 7;
+   uint32 ogm_left_width = 8; 
+   uint32 ogm_back_lenght = 9;
+}
+
+message DisplayConfig {
+   GlobalViewConfig global_view_config = 1;
+   LocalViewConfig local_view_config = 2;
+}

@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package dharma.perception;
+
+import "modules/common/proto/geometry.proto";
+
+message PerceptionObstacle {
+    optional int32 id = 1;  // obstacle ID.
+  
+    // obstacle position in the world coordinate system.
+    
+    optional dharma.common.Point3D position = 2;
+  
+    optional double theta = 3;  // heading in the world coordinate system.
+    
+    optional dharma.common.Point3D velocity = 4;  // obstacle velocity.
+  
+    // Size of obstacle bounding box.
+    optional double length = 5;  // obstacle length.
+    optional double width = 6;   // obstacle width.
+    optional double height = 7;  // obstacle height.
+  
+    repeated dharma.common.Point3D polygon_point = 8;  // obstacle corner points.
+  
+    // duration of an obstacle since detection in s.
+    optional double tracking_time = 9;
+  
+    enum Type {
+      UNKNOWN = 0;
+      UNKNOWN_MOVABLE = 1;
+      UNKNOWN_UNMOVABLE = 2;
+      PEDESTRIAN = 3;  // Pedestrian, usually determined by moving behavior.
+      BICYCLE = 4;     // bike, motor bike
+      VEHICLE = 5;     // Passenger car or truck.
+    };
+    optional Type type = 10;         // obstacle type
+    optional double timestamp = 11;  // GPS time in seconds.
+}
+

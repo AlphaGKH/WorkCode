@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package planning;
+
+import "planning/proto/reference_line_provider_config.proto";
+import "planning/proto/fp_path_plan_config.proto";
+import "planning/proto/poly_speed_plan_config.proto";
+import "perception/proto/ogm_config.proto";
+
+message TrajectoryStitchingConfig {
+    bool enable_trajectory_stitcher = 1;
+    double replan_lateral_distance_threshold = 2;
+    double replan_longitudinal_distance_threshold = 3;
+    double trajectory_stitching_preserved_length = 4;
+}
+
+message PlanningConfig {
+    ReferenceLineProviderConfig refline_provider_config = 1;
+    FpPathPlanConfig fp_path_plan_config = 2;
+    perception.OgmConfig ogm_config = 3;
+    PolySpeedPlanConfig poly_speed_plan_config = 4;
+    TrajectoryStitchingConfig traj_stitching_config = 5;
+}

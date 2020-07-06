@@ -1,0 +1,21 @@
+#pragma once
+
+#include <vector>
+
+#include "modules/common/proto/pnc_point.pb.h"
+#include "modules/planning/trajectory/discretized_trajectory.h"
+#include "modules/planning/math/curve1d/curve1d.h"
+
+namespace dharma {
+namespace planning {
+
+class TrajectoryCombiner {
+public:
+    static DiscretizedTrajectory Combine(
+            const std::vector<common::PathPoint>& reference_line,
+            const Curve1d& lon_trajectory, const Curve1d& lat_trajectory,
+            const double init_relative_time);
+};
+
+}  // namespace planning
+}  // namespace dharma

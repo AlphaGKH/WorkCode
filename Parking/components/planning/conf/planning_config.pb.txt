@@ -1,0 +1,82 @@
+refline_provider_config {
+    smooth_config {
+        max_constraint_interval : 3.0
+        longitudinal_boundary_bound : 2.0
+        lateral_boundary_bound : 0.1
+        num_of_total_points : 50
+        wide_lane_threshold_factor : 2.0
+        wide_lane_shift_remain_factor : 0.5
+        qp_spline {
+            spline_order: 5
+            max_spline_length : 15.0
+            regularization_weight : 1.0e-5
+            second_derivative_weight : 200.0
+            third_derivative_weight : 1000.0
+        }
+    }
+
+    enable_reference_line_stitching : false
+    enable_smooth_reference_line : true
+    smoothed_reference_line_max_diff : 5.0
+    update_counter : 10
+}
+fp_path_plan_config {
+    sample_config {
+       sample_line_number : 7
+       max_sample_length : 30
+       sample_interval : 1
+       }
+    cost_param {
+        center_cost_weight : 1.0
+        lateral_cost_weight : 1.0
+        lateral_collision_cost_weight : 1.0
+        longitudinal_collision_cost_weight : 1.0
+        smooth_cost_weight : 1.0
+        safety_cost_weight : 3.0
+        lateral_collision_buffer : 1.0
+    }
+    preview_distance : 5.0
+    only_use_stanley : false
+    enable_steer_rate_limit : true
+    elegant_distance : 15
+}
+ogm_config {
+    # If you change the following, remember to change "display_config.pb.txt" and
+    # "perception_config.pb.txt" at the same time
+    width: 20
+    length: 40
+    width_resolution: 0.5
+    length_resolution: 1.0
+    left_width: 10 
+    back_lenght: 10
+}
+poly_speed_plan_config {
+    sample_config {
+        time_length : 15.0
+        time_density : 1.0
+        lon_buffer : 5.0
+        num_sample_follow_per_timestamp : 3
+    }
+    cost_param {
+        acc_weight : 1.0
+        jerk_weight : 1.0
+    }
+    top_speed : 3.0
+    max_acceleration : 2.0
+    max_deceleration : -3.0
+    keep_clear_low_speed_penalty : 10.0
+    default_speed_cost : 1000.0
+    exceed_speed_penalty : 10.0
+    low_speed_penalty : 10.0
+    accel_penalty : 1.0
+    decel_penalty : 1.0
+    positive_jerk_coeff : 1.0
+    negative_jerk_coeff : 1.0
+}
+traj_stitching_config {
+    enable_trajectory_stitcher : true
+    replan_lateral_distance_threshold : 2.0
+    replan_longitudinal_distance_threshold : 5.0
+    trajectory_stitching_preserved_length : 20.0
+}
+

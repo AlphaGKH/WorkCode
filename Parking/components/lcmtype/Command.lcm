@@ -1,0 +1,7 @@
+package control;
+struct Command
+{
+    double  timestamp;
+    double  desired_steeringAngle;
+    double  desired_velocity;
+}

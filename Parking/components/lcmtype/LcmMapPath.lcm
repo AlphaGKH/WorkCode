@@ -1,0 +1,6 @@
+package planning;
+struct LcmMapPath
+{
+    int32_t  num_points;
+    LcmMapPathPoint lcm_map_path[num_points];
+}

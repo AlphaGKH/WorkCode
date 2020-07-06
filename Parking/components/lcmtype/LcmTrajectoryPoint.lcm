@@ -1,0 +1,14 @@
+package planning;
+struct LcmTrajectoryPoint
+{
+    double  x;
+    double  y;
+    double  theta; 
+    double  kappa;
+    double  s;
+    double  dkappa;
+    double  ddkappa;
+    double  v;
+    double  a;
+    double  t;
+}

@@ -1,0 +1,19 @@
+brand: 1
+front_edge_to_center: 3.25
+back_edge_to_center: 0.825
+left_edge_to_center: 0.88
+right_edge_to_center: 0.88
+length: 4.075
+width: 1.76
+height: 1.48
+min_turn_radius: 5.0
+max_acceleration: 2.0
+max_deceleration: -6.0
+max_steer_angle: 0.46364761
+max_steer_angle_rate: 0.272707696
+min_steer_angle_rate: 0
+steer_ratio: 16
+wheel_base: 2.5
+wheel_rolling_radius: 0.335
+
+

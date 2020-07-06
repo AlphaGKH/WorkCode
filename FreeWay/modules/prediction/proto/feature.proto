@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package dharma.prediction;
+
+import "modules/common/proto/pnc_point.proto";
+
+message Trajectory {
+  optional double probability = 1;  // probability of this trajectory
+  repeated dharma.common.TrajectoryPoint trajectory_point = 2;
+}

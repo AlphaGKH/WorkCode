@@ -1,0 +1,12 @@
+package chassis;
+struct Chassis
+{
+    double  timestamp;
+    double  x;
+    double  y;
+    double  theta;
+    double  v;
+    double  a; 
+    double  kappa;
+    double  gear;
+}
