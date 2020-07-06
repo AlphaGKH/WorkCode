@@ -1,7 +1,8 @@
-#ifndef SPIDER_COMPONENT_COMPONENT_H_
-#define SPIDER_COMPONENT_COMPONENT_H_
+#ifndef SPIDER_COMPONENT_TIMER_COMPONENT_H_
+#define SPIDER_COMPONENT_TIMER_COMPONENT_H_
 
 #include "spider/component/component_base.h"
+#include "spider/init.h"
 
 namespace spider {
 
@@ -9,10 +10,10 @@ class NullType {};
 
 template <typename M0 = NullType, typename M1 = NullType,
           typename M2 = NullType, typename M3 = NullType>
-class Component : public ComponentBase {
+class TimerComponent : public ComponentBase {
 public:
-    Component() = default;
-    ~Component() override {}
+    TimerComponent() = default;
+    ~TimerComponent() override {}
 
     /**
      * @brief init the component by protobuf object.
@@ -21,7 +22,7 @@ public:
      *
      * @return returns true if successful, otherwise returns false
      */
-    bool Initialize(const ComponentConfig& config) override;
+    bool Initialize(const TimerComponentConfig& config) override;
     bool Process();
 
 private:
@@ -48,13 +49,13 @@ private:
 
 // one message
 template <typename M0>
-class Component<M0, NullType, NullType, NullType> : public ComponentBase {
+class TimerComponent<M0, NullType, NullType, NullType> : public ComponentBase {
 public:
-    Component() {}
-    ~Component() override {}
+    TimerComponent() {}
+    ~TimerComponent() override {}
 
 public:
-    bool Initialize(const ComponentConfig& config) override;
+    bool Initialize(const TimerComponentConfig& config) override;
     bool Process();
 
 private:
@@ -64,7 +65,7 @@ private:
 };
 
 template <typename M0>
-bool Component<M0, NullType, NullType, NullType>::Initialize(const ComponentConfig& config) {
+bool TimerComponent<M0, NullType, NullType, NullType>::Initialize(const TimerComponentConfig& config) {
     node_.reset(new Node(config.name()));
 
     if(config.readers_size() < 1){
@@ -87,15 +88,15 @@ bool Component<M0, NullType, NullType, NullType>::Initialize(const ComponentConf
 
     readers_.emplace_back(reader_ptr_);
 
-    Spinner::Instance()->CreateTask(node_->Name(),[this](){
+    Spinner::Instance()->CreateTimerTask(node_->Name(),[this](){
         Process();
-    });
+    }, config.cycle_time());
 
     return true;
 }
 
 template <typename M0>
-bool Component<M0, NullType, NullType, NullType>::Process() {
+bool TimerComponent<M0, NullType, NullType, NullType>::Process() {
     if (is_shutdown_.load()) {
         return true;
     }
@@ -113,13 +114,13 @@ bool Component<M0, NullType, NullType, NullType>::Process() {
 
 // two message
 template <typename M0, typename M1>
-class Component<M0, M1, NullType, NullType> : public ComponentBase {
+class TimerComponent<M0, M1, NullType, NullType> : public ComponentBase {
 public:
-    Component() {}
-    ~Component() override {}
+    TimerComponent() {}
+    ~TimerComponent() override {}
 
 public:
-    bool Initialize(const ComponentConfig& config) override;
+    bool Initialize(const TimerComponentConfig& config) override;
     bool Process();
 
 private:
@@ -131,7 +132,7 @@ private:
 };
 
 template <typename M0, typename M1>
-bool Component<M0, M1, NullType, NullType>::Initialize(const ComponentConfig& config) {
+bool TimerComponent<M0, M1, NullType, NullType>::Initialize(const TimerComponentConfig& config) {
     node_.reset(new Node(config.name()));
 
     if(config.readers_size() < 1){
@@ -145,11 +146,11 @@ bool Component<M0, M1, NullType, NullType>::Initialize(const ComponentConfig& co
     }
 
     reader_ptr0_ = node_->CreateReader<M0>(config.readers(0).channel(),
-                                           config.readers(0).pending_queue_size(),
-                                           config.readers(0).time_out());
+                                          config.readers(0).pending_queue_size(),
+                                          config.readers(0).time_out());
     reader_ptr1_ = node_->CreateReader<M1>(config.readers(1).channel(),
-                                           config.readers(1).pending_queue_size(),
-                                           config.readers(1).time_out());
+                                          config.readers(1).pending_queue_size(),
+                                          config.readers(1).time_out());
     if (reader_ptr0_ == nullptr || reader_ptr1_ == nullptr) {
         AERROR << "Component create reader failed.";
         return false;
@@ -158,15 +159,15 @@ bool Component<M0, M1, NullType, NullType>::Initialize(const ComponentConfig& co
     readers_.emplace_back(reader_ptr0_);
     readers_.emplace_back(reader_ptr1_);
 
-    Spinner::Instance()->CreateTask(node_->Name(),[this](){
+    Spinner::Instance()->CreateTimerTask(node_->Name(),[this](){
         Process();
-    });
+    }, config.cycle_time());
 
     return true;
 }
 
 template <typename M0, typename M1>
-bool Component<M0, M1, NullType, NullType>::Process() {
+bool TimerComponent<M0, M1, NullType, NullType>::Process() {
     if (is_shutdown_.load()) {
         return true;
     }
@@ -190,13 +191,13 @@ bool Component<M0, M1, NullType, NullType>::Process() {
 
 // three message
 template <typename M0, typename M1, typename M2>
-class Component<M0, M1, M2, NullType> : public ComponentBase {
+class TimerComponent<M0, M1, M2, NullType> : public ComponentBase {
 public:
-    Component() {}
-    ~Component() override {}
+    TimerComponent() {}
+    ~TimerComponent() override {}
 
 public:
-    bool Initialize(const ComponentConfig& config) override;
+    bool Initialize(const TimerComponentConfig& config) override;
     bool Process();
 
 private:
@@ -210,7 +211,7 @@ private:
 };
 
 template <typename M0, typename M1, typename M2>
-bool Component<M0, M1, M2, NullType>::Initialize(const ComponentConfig& config) {
+bool TimerComponent<M0, M1, M2, NullType>::Initialize(const TimerComponentConfig& config) {
     node_.reset(new Node(config.name()));
 
     if(config.readers_size() < 1){
@@ -224,14 +225,14 @@ bool Component<M0, M1, M2, NullType>::Initialize(const ComponentConfig& config) 
     }
 
     reader_ptr0_ = node_->CreateReader<M0>(config.readers(0).channel(),
-                                           config.readers(0).pending_queue_size(),
-                                           config.readers(0).time_out());
+                                          config.readers(0).pending_queue_size(),
+                                          config.readers(0).time_out());
     reader_ptr1_ = node_->CreateReader<M1>(config.readers(1).channel(),
-                                           config.readers(1).pending_queue_size(),
-                                           config.readers(1).time_out());
+                                          config.readers(1).pending_queue_size(),
+                                          config.readers(1).time_out());
     reader_ptr2_ = node_->CreateReader<M2>(config.readers(2).channel(),
-                                           config.readers(2).pending_queue_size(),
-                                           config.readers(2).time_out());
+                                          config.readers(2).pending_queue_size(),
+                                          config.readers(2).time_out());
     if (reader_ptr0_ == nullptr || reader_ptr1_ == nullptr || reader_ptr2_ == nullptr) {
         AERROR << "Component create reader failed.";
         return false;
@@ -241,15 +242,15 @@ bool Component<M0, M1, M2, NullType>::Initialize(const ComponentConfig& config) 
     readers_.emplace_back(reader_ptr1_);
     readers_.emplace_back(reader_ptr2_);
 
-    Spinner::Instance()->CreateTask(node_->Name(),[this](){
+    Spinner::Instance()->CreateTimerTask(node_->Name(),[this](){
         Process();
-    });
+    }, config.cycle_time());
 
     return true;
 }
 
 template <typename M0, typename M1, typename M2>
-bool Component<M0, M1, M2, NullType>::Process() {
+bool TimerComponent<M0, M1, M2, NullType>::Process() {
     if (is_shutdown_.load()) {
         return true;
     }
@@ -279,7 +280,7 @@ bool Component<M0, M1, M2, NullType>::Process() {
 
 // four message
 template <typename M0, typename M1, typename M2, typename M3>
-bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
+bool TimerComponent<M0, M1, M2, M3>::Initialize(const TimerComponentConfig& config) {
     node_.reset(new Node(config.name()));
 
     if(config.readers_size() < 1){
@@ -293,17 +294,18 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
     }
 
     reader_ptr0_ = node_->CreateReader<M0>(config.readers(0).channel(),
-                                           config.readers(0).pending_queue_size(),
-                                           config.readers(0).time_out());
+                                          config.readers(0).pending_queue_size(),
+                                          config.readers(0).time_out());
     reader_ptr1_ = node_->CreateReader<M1>(config.readers(1).channel(),
-                                           config.readers(1).pending_queue_size(),
-                                           config.readers(1).time_out());
+                                          config.readers(1).pending_queue_size(),
+                                          config.readers(1).time_out());
     reader_ptr2_ = node_->CreateReader<M2>(config.readers(2).channel(),
-                                           config.readers(2).pending_queue_size(),
-                                           config.readers(2).time_out());
-    reader_ptr3_ = node_->CreateReader<M3>(config.readers(3).channel(),
-                                           config.readers(3).pending_queue_size(),
-                                           config.readers(3).time_out());
+                                          config.readers(2).pending_queue_size(),
+                                          config.readers(2).time_out());
+    reader_ptr2_ = node_->CreateReader<M3>(config.readers(3).channel(),
+                                          config.readers(3).pending_queue_size(),
+                                          config.readers(3).time_out());
+
     if (reader_ptr0_ == nullptr || reader_ptr1_ == nullptr || reader_ptr2_ == nullptr || reader_ptr3_ == nullptr) {
         AERROR << "Component create reader failed.";
         return false;
@@ -314,15 +316,15 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
     readers_.emplace_back(reader_ptr2_);
     readers_.emplace_back(reader_ptr3_);
 
-    Spinner::Instance()->CreateTask(node_->Name(),[this](){
+    Spinner::Instance()->CreateTimerTask(node_->Name(),[this](){
         Process();
-    });
+    }, config.cycle_time());
 
     return true;
 }
 
 template <typename M0, typename M1, typename M2, typename M3>
-bool Component<M0, M1, M2, M3>::Process() {
+bool TimerComponent<M0, M1, M2, M3>::Process() {
     if (is_shutdown_.load()) {
         return true;
     }
@@ -351,11 +353,27 @@ bool Component<M0, M1, M2, M3>::Process() {
     auto msg0 = reader_ptr0_->GetLatestObserved();
     auto msg1 = reader_ptr1_->GetLatestObserved();
     auto msg2 = reader_ptr2_->GetLatestObserved();
-    auto msg3 = reader_ptr2_->GetLatestObserved();
+    auto msg3 = reader_ptr3_->GetLatestObserved();
 
-    return Proc(msg0, msg1, msg2, msg3);
+    return Proc(msg0, msg1, msg2,msg3);
 }
 
 }
+
+#define MODULEMAIN(component, configure_file)                   \
+int main(){                                                     \
+    spider::TimerComponentConfig config;                        \
+    spider::common::GetProtoFromFile(configure_file, &config);  \
+    spider::Init(config.name().c_str());                        \
+    std::shared_ptr<spider::ComponentBase> base = nullptr;      \
+    base.reset(new component());                                \
+    if(base == nullptr || !base->Initialize(config)){           \
+        return 0;                                               \
+    }                                                           \
+    spider::WaitForShutdown();                                  \
+}
+
+
+
 
 #endif

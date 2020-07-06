@@ -16,6 +16,17 @@ bool Spinner::CreateTask(const std::string& task_name, TaskFunc &&func) {
     return true;
 }
 
+bool Spinner::CreateTimerTask(const std::string &task_name, TaskFunc &&func, const uint64_t& cycle_time) {
+    auto proc = std::make_shared<Processor>();
+    proc->BindTimerTask(func, cycle_time);
+
+    if(processors_.find(task_name) != processors_.end()){
+        return false;
+    }
+    processors_[task_name] = proc;
+    return true;
+}
+
 bool Spinner::RemoveTask(const std::string &task_name) {
     if(spider_unlikely(stop_)){
         return true;

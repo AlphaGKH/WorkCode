@@ -24,7 +24,7 @@ int main()
     while (spider::OK()) {
         static size_t count = 0;
         auto msg = std::make_shared<examples::proto::DemoPB>();
-        msg->set_timestamp(spider::Time::Now().ToNanosecond());
+        msg->set_timestamp(spider::Time::Now().ToSecond());
         msg->set_lidar_timestamp(spider::Time::Now().ToNanosecond());
         msg->set_seq(count++);
         msg->set_content("proto contents");

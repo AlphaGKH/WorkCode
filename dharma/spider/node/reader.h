@@ -85,6 +85,8 @@ private:
     std::list<std::shared_ptr<MessageT>> observed_queue_;
 
     CallbackFunc<MessageT> reader_func_;
+
+    int update_counter_ = 10;
 };
 
 template<typename MessageT>
@@ -105,12 +107,23 @@ bool Reader<MessageT>::Init(){
     Spinner::Instance()->CreateTask(channel_name_,
                                     [this]() {
         int res = lcm_ptr_->handleTimeout(time_out_);
-        if (0 == res) {
+        if (res > 0) {
+            update_counter_ = 10;
+            return;
+        }
+        else if (res == 0 ){
+            update_counter_--;
             AWARN << "Reader for " << channel_name_ << " TimeOut";
         }
-        else if (res < 0 ){
+        else {
+            update_counter_ = -1;
             AERROR << "Reader for " << channel_name_ << " Error occured!";
         }
+
+        if(update_counter_ < 0){
+            ClearData();
+        }
+        return;
     });
 
     return true;
@@ -150,8 +163,6 @@ void Reader<MessageT>::Observe() {
     std::lock_guard<std::mutex> lock(msg_mutex_);
     observed_queue_ = received_queue_;
 
-    std::cout << "observed_queue_size: " << observed_queue_.size() << std::endl;
-
     return;
 }
 
@@ -185,6 +196,7 @@ std::shared_ptr<MessageT> Reader<MessageT>::GetLatestObserved() const {
     if (observed_queue_.empty()) {
         return nullptr;
     }
+
     return observed_queue_.front();
 }
 

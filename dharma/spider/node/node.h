@@ -11,10 +11,15 @@ namespace spider {
 template <typename M0, typename M1, typename M2, typename M3>
 class Component;
 
+template <typename M0, typename M1, typename M2, typename M3>
+class TimerComponent;
+
 class Node {
 public:
     template <typename M0, typename M1, typename M2, typename M3>
     friend class Component;
+    template <typename M0, typename M1, typename M2, typename M3>
+    friend class TimerComponent;
 
     friend std::unique_ptr<Node> CreateNode(const std::string&,
                                             const std::string&);

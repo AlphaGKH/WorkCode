@@ -4,6 +4,7 @@
 #include "spider/node/writer.h"
 #include "spider/time/rate.h"
 #include "spider/spider.h"
+#include "spider/init.h"
 
 #include "examples/lcm/DemoLCM.hpp"
 
@@ -19,12 +20,12 @@ int main()
         return 0;
     }
 
-    spider::Rate rate(100.0);
+    spider::Rate rate(20.0);
 
-    while (true) {
+    while (spider::OK()) {
         static size_t count = 0;
         auto msg = std::make_shared<examples::DemoLCM>();
-        msg->timestamp = spider::Time::Now().ToNanosecond();
+        msg->timestamp = spider::Time::Now().ToSecond();
         msg->lidar_timestamp = spider::Time::Now().ToNanosecond();
         msg->seq = count++;
         msg->context = "lcm communication";

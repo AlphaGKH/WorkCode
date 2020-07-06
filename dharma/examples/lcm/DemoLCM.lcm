@@ -2,7 +2,7 @@ package examples;
 
 struct DemoLCM
 {
-    int64_t  timestamp;
+    double  timestamp;
     int64_t  lidar_timestamp;
     int64_t seq;
     string context;

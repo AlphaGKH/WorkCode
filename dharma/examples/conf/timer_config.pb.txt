@@ -1,0 +1,12 @@
+name: "EXAMPLE_TIMER_COMPONENT"
+readers {
+  channel: "EXAMPLE_PB"
+  pending_queue_size: 10
+  time_out: 200
+}
+readers {
+  channel: "EXAMPLE_LCM"
+  pending_queue_size: 10
+  time_out: 100
+}
+cycle_time: 100

@@ -17,6 +17,8 @@ public:
 public:
     bool CreateTask(const std::string& task_name, TaskFunc && func);
 
+    bool CreateTimerTask(const std::string& task_name, TaskFunc && func, const uint64_t& cycle_time);
+
     bool RemoveTask(const std::string& task_name);
 
     void Shutdown();

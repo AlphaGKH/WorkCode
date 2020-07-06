@@ -5,7 +5,10 @@ bool ExampleComponent::Init(){
     return true;
 }
 
-bool ExampleComponent::Proc(const std::shared_ptr<DemoPB> &msg){
-    std::cout << "Example component receive a msg: "
-              << msg->content() << std::endl;
+bool ExampleComponent::Proc(const std::shared_ptr<DemoPB> &msg0){
+
+    double delay = (spider::Time::Now().ToSecond() - msg0->timestamp());
+
+    std::cout << "msg0 delay: " << delay << std::endl;
+    return true;
 }

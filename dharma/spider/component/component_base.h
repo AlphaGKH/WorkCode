@@ -9,6 +9,7 @@
 namespace spider {
 
 using spider::proto::ComponentConfig;
+using spider::proto::TimerComponentConfig;
 
 class ComponentBase {
 public:
@@ -17,6 +18,7 @@ public:
 
 public:
     virtual bool Initialize(const ComponentConfig& config) { return false; }
+    virtual bool Initialize(const TimerComponentConfig& config) { return false; }
 
     virtual void Shutdown() {
         if(is_shutdown_.exchange(true)){

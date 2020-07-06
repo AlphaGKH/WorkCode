@@ -17,7 +17,7 @@ namespace examples
 class DemoLCM
 {
     public:
-        int64_t    timestamp;
+        double     timestamp;
 
         int64_t    lidar_timestamp;
 
@@ -121,7 +121,7 @@ int DemoLCM::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
-    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->lidar_timestamp, 1);
@@ -142,7 +142,7 @@ int DemoLCM::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
-    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->lidar_timestamp, 1);
@@ -166,7 +166,7 @@ int DemoLCM::_decodeNoHash(const void *buf, int offset, int maxlen)
 int DemoLCM::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += __int64_t_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __int64_t_encoded_array_size(NULL, 1);
     enc_size += __int64_t_encoded_array_size(NULL, 1);
     enc_size += this->context.size() + 4 + 1;
@@ -175,7 +175,7 @@ int DemoLCM::_getEncodedSizeNoHash() const
 
 uint64_t DemoLCM::_computeHash(const __lcm_hash_ptr *)
 {
-    uint64_t hash = 0x98991b0753736d3bLL;
+    uint64_t hash = 0x187d81966a545c0aLL;
     return (hash<<1) + ((hash>>63)&1);
 }
 
