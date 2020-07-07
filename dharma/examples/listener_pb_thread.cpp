@@ -40,6 +40,7 @@ bool ThreadDemo::Init(){
     node_->Name();
     listener_ = node_->CreateReader<examples::proto::DemoPB>("EXAMPLE_PB",10, 500);
 
+    // timer task
     spider::Spinner::Instance()->CreateTimerTask("thread_demo", [this](){
         node_->Observe();
 
@@ -74,6 +75,7 @@ bool ThreadDemo::Init(){
 //        return;
 
 //    });
+
 }
 
 int main()

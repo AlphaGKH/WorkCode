@@ -19,7 +19,7 @@ int main()
         return 0;
     }
 
-    spider::Rate rate(10.0);
+    spider::Rate rate(100.0);
 
     while (spider::OK()) {
         static size_t count = 0;

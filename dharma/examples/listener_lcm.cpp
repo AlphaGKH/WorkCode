@@ -3,6 +3,7 @@
 #include "spider/node/reader.h"
 #include "spider/time/time.h"
 #include "spider/spider.h"
+#include "spider/init.h"
 
 #include "examples/lcm/DemoLCM.hpp"
 
@@ -22,6 +23,8 @@ int main()
     auto listen_node = spider::CreateNode("Listener");
 
     auto listener = listen_node->CreateReader<examples::DemoLCM>("EXAMPLE_LCM", &funct);
+
+    spider::WaitForShutdown();
 
     return 0;
 }

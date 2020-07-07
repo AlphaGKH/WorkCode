@@ -1,0 +1,6 @@
+name: "EXAMPLE_COMPONENT"
+readers {
+  channel: "EXAMPLE_PB"
+  pending_queue_size: 10
+  time_out: 200
+}

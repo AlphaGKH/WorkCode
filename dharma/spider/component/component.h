@@ -358,4 +358,17 @@ bool Component<M0, M1, M2, M3>::Process() {
 
 }
 
+#define MODULEMAIN(component, configure_file)                   \
+int main(){                                                     \
+    spider::ComponentConfig config;                             \
+    spider::common::GetProtoFromFile(configure_file, &config);  \
+    spider::Init(config.name().c_str());                        \
+    std::shared_ptr<spider::ComponentBase> base = nullptr;      \
+    base.reset(new component());                                \
+    if(base == nullptr || !base->Initialize(config)){           \
+        return 0;                                               \
+    }                                                           \
+    spider::WaitForShutdown();                                  \
+}
+
 #endif
