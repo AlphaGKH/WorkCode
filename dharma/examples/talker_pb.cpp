@@ -6,7 +6,7 @@
 #include "spider/spider.h"
 #include "spider/init.h"
 
-#include "examples/examples.pb.h"
+#include "examples/proto/examples.pb.h"
 
 int main()
 {

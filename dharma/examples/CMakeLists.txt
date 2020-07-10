@@ -4,7 +4,10 @@ include_directories(${dharma_SOURCE_DIR})
 include_directories(${dharma_BINARY_DIR})
 
 add_compile_options(-Og)
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/examples.proto)
+
+file(GLOB EXP_PROTO proto/*.proto)
+# PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS proto/examples.proto)
+PROTOC_CPP(PROTO_SRCS PROTO_HDRS PROTO_ROOT_PATH ${dharma_SOURCE_DIR} ${EXP_PROTO})
 
 # talker_pb
 add_executable(talker_pb talker_pb.cpp ${PROTO_SRCS})

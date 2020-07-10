@@ -2,7 +2,7 @@
 
 #include "spider/init.h"
 
-#include "examples/examples.pb.h"
+#include "examples/proto/examples.pb.h"
 
 using spider::Component;
 using spider::ComponentBase;

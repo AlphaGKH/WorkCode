@@ -5,7 +5,7 @@
 #include "spider/spider.h"
 #include "spider/init.h"
 
-#include "examples/examples.pb.h"
+#include "examples/proto/examples.pb.h"
 
 void funct(std::shared_ptr<examples::proto::DemoPB> msg) {
 

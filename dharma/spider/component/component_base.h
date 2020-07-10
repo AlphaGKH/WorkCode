@@ -4,7 +4,7 @@
 #include "spider/common/file.h"
 #include "spider/node/node.h"
 
-#include "spider/component_conf.pb.h"
+#include "spider/proto/component_conf.pb.h"
 
 namespace spider {
 
