@@ -1,7 +1,6 @@
 #pragma once
 
 #include "modules/common/proto/vehicle_state.pb.h"
-#include "modules/routing/proto/routing.pb.h"
 
 namespace dharma {
 
