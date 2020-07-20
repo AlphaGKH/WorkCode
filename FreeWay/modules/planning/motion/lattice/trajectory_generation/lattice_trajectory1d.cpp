@@ -1,6 +1,6 @@
 #include "modules/planning/motion/lattice/trajectory_generation/lattice_trajectory1d.h"
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 
 namespace dharma {
 namespace planning {

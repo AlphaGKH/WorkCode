@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package dharma.localization;
+
+import "modules/common/proto/geometry.proto";
+
+message Pose {
+  // Position of the vehicle reference point (VRP) in the map reference frame.
+  // The VRP is the center of rear axle.
+  optional dharma.common.PointENU position = 1;
+
+  // A quaternion that represents the rotation from the IMU coordinate
+  // (Right/Forward/Up) to the
+  // world coordinate (East/North/Up).
+  optional dharma.common.Quaternion orientation = 2;
+
+  // Linear acceleration of the VRP in the vehicle reference frame.
+  // Right/forward/up in meters per square second.
+  optional dharma.common.Point3D linear_acceleration_vrf = 3;
+
+  // Angular velocity of the VRP in the vehicle reference frame.
+  // Around right/forward/up axes in radians per second.
+  optional dharma.common.Point3D angular_velocity_vrf = 4;
+}

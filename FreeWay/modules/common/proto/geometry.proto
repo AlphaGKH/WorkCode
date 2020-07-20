@@ -37,7 +37,7 @@ message Point2D {
 }
 
 // A general 3D point. Its meaning and units depend on context, and must be
-// explained in comments.
+// explained in comments.++get
 message Point3D {
   optional double x = 1 [default = nan];
   optional double y = 2 [default = nan];

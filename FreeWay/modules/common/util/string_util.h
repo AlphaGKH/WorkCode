@@ -22,8 +22,6 @@ struct DebugStringFormatter {
     }
 };
 
-//std::string EncodeBase64(std::string_view in);
-
 }  // namespace util
 }  // namespace common
 }  // namespace dharma

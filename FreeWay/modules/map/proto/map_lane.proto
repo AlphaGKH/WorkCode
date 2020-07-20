@@ -1,0 +1,87 @@
+syntax = "proto2";
+
+package dharma.hdmap;
+
+import "modules/map/proto/map_id.proto";
+import "modules/map/proto/map_geometry.proto";
+
+message LaneBoundaryType {
+  enum Type {
+    UNKNOWN = 0;
+    DOTTED_YELLOW = 1;
+    DOTTED_WHITE = 2;
+    SOLID_YELLOW = 3;
+    SOLID_WHITE = 4;
+    DOUBLE_YELLOW = 5;
+    CURB = 6;
+  };
+  // Offset relative to the starting point of boundary
+  optional double s = 1;
+  // 对于指定的一段车道边界线而言，在s处的类型是确定的一种
+  optional Type type = 2;
+}
+
+// 对于一条车道边界线而言，curve中包含的一系列线段表示的是该车道边界线的形状
+message LaneBoundary {
+  optional Curve curve = 1;
+
+  optional double length = 2;  // 该车道边界线的总长度
+
+  // 在不同的s上车道边界线的类型可能是不一样的，所以boundary_types中包含对应s上的车道边界线类型
+  repeated LaneBoundaryType boundary_types = 3;
+}
+
+
+// 车道中线点与最近边界线的关系，s表示当前这个车道中心点的s,width表示该中心点与某一次车道边界线的距离
+message LaneSampleAssociation {
+  optional double s = 1;
+  optional double width = 2;
+}
+
+// 高精度地图简单理解就是精细到车道级别的地图，所在在Lane里面不仅包含车道的几何信息(central_curve,left_boundary，right_boundary,length, left_samples, right_samples)，
+// 还包含了交通信息(speed_limit,turn),以及拓扑结构信息(left_neighbor_forward_lane_ids,left_neighbor_reverse_lane_ids,predecessor_ids等)
+message Lane {
+  optional Id id = 1;  // 一个车道Lane具有一个全局唯一的id
+
+  // Central lane as reference trajectory, not necessary to be the geometry central.
+  optional Curve central_curve = 2;              // 车道中心线
+
+  // Lane boundary curve.
+  optional LaneBoundary left_boundary = 3;       // 车道左边界
+  optional LaneBoundary right_boundary = 4;      // 车道右边界
+
+  // in meters.
+  optional double length = 5;                    // 车道长度
+
+  // Speed limit of the lane, in meters per second.
+  optional double speed_limit = 6;               // 车道限速
+
+  // Association between central point to closest boundary.
+  repeated LaneSampleAssociation left_samples = 7;  // 车道中心点与最邻近左边界的关系
+  repeated LaneSampleAssociation right_samples = 8; // 车道中心点与最邻近右边界的关系
+
+  // Association between central point to closest road boundary.
+  repeated LaneSampleAssociation left_road_samples = 9;  // 车道中心点与最邻近左道路边界的关系
+  repeated LaneSampleAssociation right_road_samples = 10; // 车道中心点与最邻近右道路边界的关系
+
+  enum LaneTurn {
+    NO_TURN = 0;
+    LEFT_TURN = 1;
+    RIGHT_TURN = 2;
+    U_TURN = 3;
+  };
+  optional LaneTurn turn = 11;
+
+  // Neighbor lanes on the same direction.
+  repeated Id left_neighbor_forward_lane_ids = 12;  // 本车道左边相邻的前向车道，这里前向指的是跟本车道同向吗？
+  repeated Id right_neighbor_forward_lane_ids = 13; // 本车道右边相邻的前向车道，
+
+  repeated Id left_neighbor_reverse_lane_ids = 14;  // 本车道左边相邻的反向车道，这里反向指的是跟本车道反向吗？
+  repeated Id right_neighbor_reverse_lane_ids = 15; // 本车道右边相邻的反向车道，
+
+  // All lanes can be driving into (or from).
+  repeated Id predecessor_ids = 16;       // 可以驶入本车道的其它车道的id
+  repeated Id successor_ids = 17;         // 本车道可以驶入的其它车道的id
+
+}
+

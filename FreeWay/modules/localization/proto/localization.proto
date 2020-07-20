@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package dharma.localization;
+
+import "modules/common/proto/header.proto";
+import "modules/localization/proto/pose.proto";
+
+message Localization {
+  optional dharma.common.Header header = 1; // this timestamp is a message timestamp
+  // The time of pose measurement, seconds since 1970-1-1 (UNIX time).
+  optional double measurement_time = 2;  // In seconds. // this is a timestamp of the mesurement
+
+  optional dharma.localization.Pose pose = 3;
+}
+

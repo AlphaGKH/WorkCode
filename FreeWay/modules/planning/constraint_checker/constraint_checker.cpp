@@ -1,6 +1,6 @@
 #include "modules/planning/constraint_checker/constraint_checker.h"
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 #include "modules/planning/common/planning_gflags.h"
 
 namespace dharma {

@@ -2,7 +2,6 @@ syntax = "proto2";
 
 package dharma.planning;
 
-import "modules/canbus/proto/chassis.proto";
 import "modules/common/proto/geometry.proto";
 import "modules/common/proto/header.proto";
 import "modules/common/proto/pnc_point.proto";
@@ -67,9 +66,6 @@ message ADCTrajectory {
   // is_replan == true mean replan triggered
   optional bool is_replan = 9 [default = false];
   optional string replan_reason = 22;
-
-  // Specify trajectory gear
-  optional dharma.canbus.Chassis.GearPosition gear = 10;
 
 
   optional LatencyStats latency_stats = 15;

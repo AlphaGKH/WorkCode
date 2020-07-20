@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 #include "modules/planning/common/planning_gflags.h"
 
 namespace dharma {
@@ -122,20 +122,20 @@ EndConditionSampler::SampleLonEndConditionsForPathTimePoints() const {
 
 std::vector<SamplePoint>
 EndConditionSampler::QueryPathTimeObstacleSamplePoints() const {
-    const auto& vehicle_param = common::VehicleParamHandle::Instance()->GetParam();
-
+    const auto& vehicle_config =
+          common::VehicleConfigHelper::Instance()->GetConfig();
     std::vector<SamplePoint> sample_points;
     for (const auto& path_time_obstacle :
          ptr_path_time_graph_->GetPathTimeObstacles()) {
         std::string obstacle_id = path_time_obstacle.id();
-        QueryFollowPathTimePoints(vehicle_param, obstacle_id, &sample_points);
-        QueryOvertakePathTimePoints(vehicle_param, obstacle_id, &sample_points);
+        QueryFollowPathTimePoints(vehicle_config, obstacle_id, &sample_points);
+        QueryOvertakePathTimePoints(vehicle_config, obstacle_id, &sample_points);
     }
     return sample_points;
 }
 
 void EndConditionSampler::QueryFollowPathTimePoints(
-        const common::VehicleParam& vehicle_param, const std::string& obstacle_id,
+        const common::VehicleConfig& vehicle_config, const std::string& obstacle_id,
         std::vector<SamplePoint>* const sample_points) const {
     std::vector<STPoint> follow_path_time_points =
             ptr_path_time_graph_->GetObstacleSurroundingPoints(
@@ -145,7 +145,7 @@ void EndConditionSampler::QueryFollowPathTimePoints(
         double v = ptr_prediction_querier_->ProjectVelocityAlongReferenceLine(
                     obstacle_id, path_time_point.s(), path_time_point.t());
         // Generate candidate s
-        double s_upper = path_time_point.s() - vehicle_param.front_edge_to_center();
+        double s_upper = path_time_point.s() - vehicle_config.vehicle_param().front_edge_to_center();
 
         double s_lower = s_upper - FLAGS_default_lon_buffer;
         CHECK_GE(FLAGS_num_sample_follow_per_timestamp, 2);
@@ -164,7 +164,7 @@ void EndConditionSampler::QueryFollowPathTimePoints(
 }
 
 void EndConditionSampler::QueryOvertakePathTimePoints(
-        const common::VehicleParam& vehicle_param, const std::string& obstacle_id,
+        const common::VehicleConfig& vehicle_config, const std::string& obstacle_id,
         std::vector<SamplePoint>* sample_points) const {
     std::vector<STPoint> overtake_path_time_points =
             ptr_path_time_graph_->GetObstacleSurroundingPoints(

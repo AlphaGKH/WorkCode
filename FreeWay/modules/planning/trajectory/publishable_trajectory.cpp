@@ -1,6 +1,6 @@
 #include "modules/planning/trajectory/publishable_trajectory.h"
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 
 namespace dharma {
 namespace planning {

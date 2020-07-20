@@ -1,11 +1,10 @@
 #include "modules/planning/motion/lattice/behavior/feasible_region.h"
 
 #include <cmath>
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 #include "modules/planning/common/planning_gflags.h"
 
 namespace dharma {
-
 namespace planning {
 
 FeasibleRegion::FeasibleRegion(const std::array<double, 3>& init_s) {
@@ -43,7 +42,7 @@ double FeasibleRegion::VLower(const double t) const {
             : 0.0;
     }
 
-    double FeasibleRegion::TLower(const double s) const {
+double FeasibleRegion::TLower(const double s) const {
     CHECK(s >= init_s_[0]);
 
     double delta_s = s - init_s_[0];

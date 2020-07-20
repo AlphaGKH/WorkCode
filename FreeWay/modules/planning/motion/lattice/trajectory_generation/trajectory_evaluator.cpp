@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 #include "modules/common/math/path_matcher.h"
 #include "modules/planning/common/planning_gflags.h"
 #include "modules/planning/math/trajectory1d/piecewise_acceleration_trajectory1d.h"
@@ -144,6 +144,7 @@ double TrajectoryEvaluator::Evaluate(
 
 double TrajectoryEvaluator::LatOffsetCost(const PtrTrajectory1d& lat_trajectory,
                                           const std::vector<double>& s_values) const {
+
     double lat_offset_start = lat_trajectory->Evaluate(0, 0.0);
     double cost_sqr_sum = 0.0;
     double cost_abs_sum = 0.0;

@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package dharma.hdmap;
+
+import "modules/common/proto/geometry.proto";
+
+// Straight line segment.
+message LineSegment {
+    repeated common.PointENU points = 1; // one LineSegment has two PointENU
+    optional double s = 2;  // start position (s-coordinate)
+    optional common.PointENU start_position = 3;
+    optional double theta = 8; // start orientation
+    optional double length = 9;
+}
+
+  // An object similar to a line but that need not be straight.
+message Curve {
+    repeated LineSegment line_segments = 1;
+}

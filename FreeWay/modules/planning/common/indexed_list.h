@@ -4,7 +4,7 @@
 #include <vector>
 #include <shared_mutex>
 
-#include "cyber/common/log.h"
+#include "spider/common/log.h"
 #include "modules/common/util/map_util.h"
 
 namespace dharma {

@@ -2,7 +2,6 @@
 
 #include "modules/common/math/linear_interpolation.h"
 #include "modules/common/math/path_matcher.h"
-#include "modules/common/util/map_util.h"
 
 namespace dharma{
 namespace planning{

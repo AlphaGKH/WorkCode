@@ -1,25 +1,29 @@
 #pragma once
 
-#include "modules/common/math/vec2d.h"
+#include "modules/map/pnc_map/path.h"
+#include "modules/common/proto/pnc_point.pb.h"
 
 namespace dharma {
 
 namespace planning {
 
-class ReferencePoint : public common::math::Vec2d
-{
+class ReferencePoint : public hdmap::MapPathPoint {
 public:
     ReferencePoint() = default;
 
-public:
-    double heading() const { return heading_; }
+    ReferencePoint(const MapPathPoint& map_path_point, const double kappa,
+                   const double dkappa);
 
-    double kappa() const { return kappa_; }
+    common::PathPoint ToPathPoint(double s) const;
 
-    double dkappa() const { return dkappa_; }
+    double kappa() const;
+    double dkappa() const;
+
+    std::string DebugString() const;
+
+    static void RemoveDuplicates(std::vector<ReferencePoint>* points);
 
 private:
-    double heading_ = 0.0;
     double kappa_ = 0.0;
     double dkappa_ = 0.0;
 };

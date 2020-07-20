@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-#include "cyber/common/log.h"
 #include "modules/common/math/math_utils.h"
 
 namespace dharma {
@@ -29,15 +28,15 @@ double slerp(const double a0, const double t0, const double a1, const double t1,
   return NormalizeAngle(a);
 }
 
-SLPoint InterpolateUsingLinearApproximation(const SLPoint &p0,
-                                            const SLPoint &p1, const double w) {
-  CHECK_GE(w, 0.0);
+ SLPoint InterpolateUsingLinearApproximation(const SLPoint &p0,
+                                             const SLPoint &p1, const double w) {
+   CHECK_GE(w, 0.0);
 
-  SLPoint p;
-  p.set_s((1 - w) * p0.s() + w * p1.s());
-  p.set_l((1 - w) * p0.l() + w * p1.l());
-  return p;
-}
+   SLPoint p;
+   p.set_s((1 - w) * p0.s() + w * p1.s());
+   p.set_l((1 - w) * p0.l() + w * p1.l());
+   return p;
+ }
 
 PathPoint InterpolateUsingLinearApproximation(const PathPoint &p0,
                                               const PathPoint &p1,

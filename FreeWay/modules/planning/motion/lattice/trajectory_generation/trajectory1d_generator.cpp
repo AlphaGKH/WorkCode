@@ -39,8 +39,6 @@ void Trajectory1dGenerator::GenerateLongitudinalTrajectoryBundle(
         GenerateSpeedProfilesForStopping(planning_target.stop_point().s(),
                                          ptr_lon_trajectory_bundle);
     }
-    return;
-
 }
 
 void Trajectory1dGenerator::GenerateSpeedProfilesForCruising(
@@ -101,7 +99,6 @@ void Trajectory1dGenerator::GenerateLateralTrajectoryBundle(
         // using osqp
 
     }
-    return;
 }
 
 }

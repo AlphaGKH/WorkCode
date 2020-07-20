@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "modules/common/vehicle_param_handle/vehicle_param_handle.h"
+#include "modules/common/configs/vehicle_config_helper.h"
 #include "modules/planning/speed/st_point.h"
 #include "modules/planning/motion/lattice/behavior/feasible_region.h"
 #include "modules/planning/motion/lattice/behavior/path_time_graph.h"
@@ -46,12 +46,12 @@ private:
     std::vector<SamplePoint> QueryPathTimeObstacleSamplePoints() const;
 
     void QueryFollowPathTimePoints(
-            const dharma::common::VehicleParam& vehicle_param,
+            const common::VehicleConfig& vehicle_config,
             const std::string& obstacle_id,
             std::vector<SamplePoint>* sample_points) const;
 
     void QueryOvertakePathTimePoints(
-            const dharma::common::VehicleParam& vehicle_param,
+            const common::VehicleConfig& vehicle_config,
             const std::string& obstacle_id,
             std::vector<SamplePoint>* sample_points) const;
 

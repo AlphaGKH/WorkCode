@@ -10,6 +10,7 @@
 #include "modules/planning/math/curve1d/curve1d.h"
 #include "modules/planning/proto/lattice_structure.pb.h"
 
+
 namespace dharma {
 namespace planning {
 

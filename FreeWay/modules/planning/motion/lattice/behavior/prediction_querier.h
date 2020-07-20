@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "modules/planning/obstacle/obstacle.h"
-#include "modules/common/proto/pnc_point.pb.h"
 
 namespace dharma {
 namespace planning {

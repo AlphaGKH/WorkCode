@@ -2,8 +2,8 @@
 
 #include <utility>
 
-#include "cyber/common/log.h"
-#include "modules/common/vehicle_param_handle/vehicle_param_handle.h"
+#include "spider/common/log.h"
+#include "modules/common/configs/vehicle_config_helper.h"
 #include "modules/common/math/path_matcher.h"
 #include "modules/common/math/vec2d.h"
 #include "modules/planning/common/planning_gflags.h"
@@ -66,10 +66,10 @@ bool CollisionChecker::InCollision(
         const DiscretizedTrajectory& discretized_trajectory) {
     CHECK_LE(discretized_trajectory.NumOfPoints(),
              predicted_bounding_rectangles_.size());
-    const auto& vehicle_param = common::VehicleParamHandle::GetParam();
-
-    double ego_length = vehicle_param.length();
-    double ego_width = vehicle_param.width();
+    const auto& vehicle_config =
+        common::VehicleConfigHelper::Instance()->GetConfig();
+    double ego_length = vehicle_config.vehicle_param().length();
+    double ego_width = vehicle_config.vehicle_param().width();
 
     for (size_t i = 0; i < discretized_trajectory.NumOfPoints(); ++i) {
         const auto& trajectory_point =
@@ -79,7 +79,7 @@ bool CollisionChecker::InCollision(
         {trajectory_point.path_point().x(), trajectory_point.path_point().y()},
                     ego_theta, ego_length, ego_width);
         double shift_distance =
-                ego_length / 2.0 - vehicle_param.back_edge_to_center();
+                ego_length / 2.0 - vehicle_config.vehicle_param().back_edge_to_center();
         Vec2d shift_vec{shift_distance * std::cos(ego_theta),
                     shift_distance * std::sin(ego_theta)};
         ego_box.Shift(shift_vec);
