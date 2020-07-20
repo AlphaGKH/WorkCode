@@ -15,7 +15,7 @@ namespace dharma {
 
 namespace planning {
 
-Planning::~Planning() { EgoInfo::Instance()->Clear(); }
+Planning::~Planning() {}
 
 bool Planning::Init() {
   planner_ = std::make_unique<LatticePlanner>();
@@ -43,12 +43,14 @@ bool Planning::RunOnce(const LocalView &local_view,
   const double vehicle_state_timestamp = vehicle_state.timestamp();
   DCHECK_GE(start_timestamp, vehicle_state_timestamp);
 
+  // 确认vehicle_state信息是有效的
   if (!status || !util::IsVehicleStateValid(vehicle_state)) {
     AERROR << "Update VehicleStateProvider failed or the vehicle state is out "
               "dated.";
     return false;
   }
 
+  // 根据vehicle_state的时间戳延时对vehicle_state的xy进行外推
   if (start_timestamp - vehicle_state_timestamp <
       FLAGS_message_latency_threshold) {
     vehicle_state = AlignTimeStamp(vehicle_state, start_timestamp);
@@ -56,6 +58,7 @@ bool Planning::RunOnce(const LocalView &local_view,
 
   const double planning_cycle_time = 100.0;
 
+  // 轨迹拼接
   std::string replan_reason;
   std::vector<common::TrajectoryPoint> stitching_trajectory =
       TrajectoryStitcher::ComputeStitchingTrajectory(
@@ -66,14 +69,35 @@ bool Planning::RunOnce(const LocalView &local_view,
   EgoInfo::Instance()->Update(vehicle_state);
 
   const uint32_t frame_num = static_cast<uint32_t>(seq_num_++);
-  status = InitFrame(frame_num, stitching_trajectory.back(), vehicle_state,
-                     ref_lines);
 
-  if (!status) {
+  if (!InitFrame(frame_num, stitching_trajectory.back(), vehicle_state,
+                 ref_lines)) {
+    AERROR << "Init Frame Failed!";
     return false;
   }
 
-  status = Plan(start_timestamp, stitching_trajectory, adc_trajectory);
+  if (!Plan(start_timestamp, stitching_trajectory, adc_trajectory)) {
+    AERROR << "Plan Failed!";
+    return false;
+  }
+
+  FillPlanningPb(start_timestamp, adc_trajectory);
+  return true;
+}
+
+common::VehicleState
+Planning::AlignTimeStamp(const common::VehicleState &vehicle_state,
+                         const double curr_timestamp) const {
+  auto future_xy =
+      common::VehicleStateProvider::Instance()->EstimateFuturePosition(
+          curr_timestamp - vehicle_state.timestamp());
+
+  common::VehicleState aligned_vehicle_state = vehicle_state;
+  aligned_vehicle_state.set_x(future_xy.x());
+  aligned_vehicle_state.set_y(future_xy.y());
+  aligned_vehicle_state.set_timestamp(curr_timestamp);
+
+  return aligned_vehicle_state;
 }
 
 bool Planning::InitFrame(const uint32_t sequence_num,
@@ -92,7 +116,7 @@ bool Planning::InitFrame(const uint32_t sequence_num,
       hdmap::PncMap::LookForwardDistance(vehicle_state.linear_velocity());
 
   for (auto &ref_line : ref_lines) {
-    if (!ref_line.Segment(
+    if (!ref_line.Shrink(
             common::math::Vec2d(vehicle_state.x(), vehicle_state.y()),
             FLAGS_look_backward_distance, forward_limit)) {
       AERROR << "Fail to shrink reference line.";
@@ -136,19 +160,10 @@ bool Planning::Plan(
   return status;
 }
 
-common::VehicleState
-Planning::AlignTimeStamp(const common::VehicleState &vehicle_state,
-                         const double curr_timestamp) const {
-  auto future_xy =
-      common::VehicleStateProvider::Instance()->EstimateFuturePosition(
-          curr_timestamp - vehicle_state.timestamp());
+void Planning::FillPlanningPb(const double timestamp,
+                              ADCTrajectory *const trajectory_pb) {
 
-  common::VehicleState aligned_vehicle_state = vehicle_state;
-  aligned_vehicle_state.set_x(future_xy.x());
-  aligned_vehicle_state.set_y(future_xy.y());
-  aligned_vehicle_state.set_timestamp(curr_timestamp);
-
-  return aligned_vehicle_state;
+  trajectory_pb->mutable_header()->set_timestamp_sec(timestamp);
 }
 
 } // namespace planning

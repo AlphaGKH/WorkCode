@@ -31,8 +31,6 @@ void EgoInfo::CalculateEgoBox(const common::VehicleState &vehicle_state) {
                                  param.length(), param.width());
 }
 
-void EgoInfo::Clear() {}
-
 } // namespace planning
 
 } // namespace dharma

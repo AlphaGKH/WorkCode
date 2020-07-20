@@ -29,16 +29,14 @@ void PointsFromCurve(const Curve &input_curve,
   RETURN_IF_NULL(points);
   points->clear();
 
-  for (const auto &curve : input_curve.line_segments()) {
-    //        if (curve.has_line_segment()) {
-    //            for (const auto &point : curve.line_segment().point()) {
-    //                CHECK(IsPointValid(point))
-    //                        << "invalid map point: " << point.DebugString();
-    //                points->emplace_back(point.x(), point.y());
-    //            }
-    //        } else {
-    //            AERROR << "Can not handle curve type.";
-    //        }
+  for (const auto &curve : input_curve.segment()) {
+    if (curve.has_line_segment()) {
+      for (const auto &point : curve.line_segment().point()) {
+        points->emplace_back(point.x(), point.y());
+      }
+    } else {
+      AERROR << "Can not handle curve type.";
+    }
   }
   RemoveDuplicates(points);
 }
@@ -90,9 +88,7 @@ void LaneInfo::Init() {
   for (const auto &direction : unit_directions_) {
     headings_.push_back(direction.Angle());
   }
-  //    for (const auto &overlap_id : lane_.overlap_id()) {
-  //        overlap_ids_.emplace_back(overlap_id.id());
-  //    }
+
   CHECK(!segments_.empty());
 
   sampled_left_width_.clear();
@@ -103,40 +99,6 @@ void LaneInfo::Init() {
   for (const auto &sample : lane_.right_samples()) {
     sampled_right_width_.emplace_back(sample.s(), sample.width());
   }
-
-  /*
-  if (lane_.has) {
-      if (lane_.type() == Lane::CITY_DRIVING) {
-          for (const auto &p : sampled_left_width_) {
-              if (p.second < FLAGS_half_vehicle_width) {
-                  AERROR
-                          << "lane[id = " << lane_.id().DebugString()
-                          << "]. sampled_left_width_[" << p.second
-                          << "] is too small. It should be larger than half
-  vehicle width["
-                          << FLAGS_half_vehicle_width << "].";
-              }
-          }
-          for (const auto &p : sampled_right_width_) {
-              if (p.second < FLAGS_half_vehicle_width) {
-                  AERROR
-                          << "lane[id = " << lane_.id().DebugString()
-                          << "]. sampled_right_width_[" << p.second
-                          << "] is too small. It should be larger than half
-  vehicle width["
-                          << FLAGS_half_vehicle_width << "].";
-              }
-          }
-      } else if (lane_.type() == Lane::NONE) {
-          AERROR << "lane_[id = " << lane_.id().DebugString() << "] type is
-  NONE.";
-      }
-  }
-  else {
-      AERROR << "lane_[id = " << lane_.id().DebugString() << "] has NO type.";
-  }
-
-  */
 
   sampled_left_road_width_.clear();
   sampled_right_road_width_.clear();

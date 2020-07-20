@@ -1,7 +1,10 @@
 #include "modules/map/pnc_map/path.h"
 
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
 #include "gflags/gflags.h"
+
+#include "modules/common/util/string_util.h"
 
 DEFINE_double(default_lane_width, 3.048, "default lane width is about 10 feet");
 
@@ -37,6 +40,33 @@ std::string LaneWaypoint::DebugString() const {
 }
 
 // LaneSegment
+void LaneSegment::Join(std::vector<LaneSegment> *segments) {
+  static constexpr double kSegmentDelta = 0.5;
+  std::size_t k = 0;
+  std::size_t i = 0;
+  while (i < segments->size()) {
+    std::size_t j = i;
+    while (j + 1 < segments->size() &&
+           segments->at(i).lane == segments->at(j + 1).lane) {
+      ++j;
+    }
+    auto &segment_k = segments->at(k);
+    segment_k.lane = segments->at(i).lane;
+    segment_k.start_s = segments->at(i).start_s;
+    segment_k.end_s = segments->at(j).end_s;
+    if (segment_k.start_s < kSegmentDelta) {
+      segment_k.start_s = 0.0;
+    }
+    if (segment_k.end_s + kSegmentDelta >= segment_k.lane->total_length()) {
+      segment_k.end_s = segment_k.lane->total_length();
+    }
+    i = j + 1;
+    ++k;
+  }
+  segments->resize(k);
+  segments->shrink_to_fit(); // release memory
+}
+
 std::string LaneSegment::DebugString() const {
   if (lane == nullptr) {
     return "(lane is null)";
@@ -81,98 +111,34 @@ std::vector<MapPathPoint> MapPathPoint::GetPointsFromLane(LaneInfoConstPtr lane,
   return points;
 }
 
-void MapPathPoint::RemoveDuplicates(std::vector<MapPathPoint> *points) {}
+void MapPathPoint::RemoveDuplicates(std::vector<MapPathPoint> *points) {
+  static constexpr double kDuplicatedPointsEpsilon = 1e-7;
+  static constexpr double limit =
+      kDuplicatedPointsEpsilon * kDuplicatedPointsEpsilon;
+  CHECK_NOTNULL(points);
+  int count = 0;
+  for (size_t i = 0; i < points->size(); ++i) {
+    if (count == 0 ||
+        (*points)[i].DistanceSquareTo((*points)[count - 1]) > limit) {
+      (*points)[count++] = (*points)[i];
+    } else {
+      (*points)[count - 1].add_lane_waypoints((*points)[i].lane_waypoints());
+    }
+  }
+  points->resize(count);
+}
+
+std::string MapPathPoint::DebugString() const {
+  return absl::StrCat(
+      "x = ", x_, "  y = ", y_, "  heading = ", heading_,
+      "  lwp = "
+      "{(",
+      absl::StrJoin(lane_waypoints_, "), (",
+                    dharma::common::util::DebugStringFormatter()),
+      ")}");
+}
 
 // Path
-bool Path::GetLaneWidth(const double s, double *lane_left_width,
-                        double *lane_right_width) const {
-  CHECK_NOTNULL(lane_left_width);
-  CHECK_NOTNULL(lane_right_width);
-
-  if (s < 0.0 || s > length_) {
-    return false;
-  }
-  *lane_left_width = GetSample(lane_left_width_, s);
-  *lane_right_width = GetSample(lane_right_width_, s);
-  return true;
-}
-
-double Path::GetSample(const std::vector<double> &samples,
-                       const double s) const {
-  if (samples.empty()) {
-    return 0.0;
-  }
-  if (s <= 0.0) {
-    return samples[0];
-  }
-  const int idx = static_cast<int>(s / kSampleDistance);
-  if (idx >= num_sample_points_ - 1) {
-    return samples.back();
-  }
-  const double ratio = (s - idx * kSampleDistance) / kSampleDistance;
-  return samples[idx] * (1.0 - ratio) + samples[idx + 1] * ratio;
-}
-
-InterpolatedIndex Path::GetIndexFromS(double s) const {
-  if (s <= 0.0) {
-    return {0, 0.0};
-  }
-  CHECK_GT(num_points_, 0);
-  if (s >= length_) {
-    return {num_points_ - 1, 0.0};
-  }
-  const int sample_id = static_cast<int>(s / kSampleDistance);
-  if (sample_id >= num_sample_points_) {
-    return {num_points_ - 1, 0.0};
-  }
-  const int next_sample_id = sample_id + 1;
-  int low = last_point_index_[sample_id];
-  int high = (next_sample_id < num_sample_points_
-                  ? std::min(num_points_, last_point_index_[next_sample_id] + 1)
-                  : num_points_);
-  while (low + 1 < high) {
-    const int mid = (low + high) / 2;
-    if (accumulated_s_[mid] <= s) {
-      low = mid;
-    } else {
-      high = mid;
-    }
-  }
-  return {low, s - accumulated_s_[low]};
-}
-
-MapPathPoint Path::GetSmoothPoint(const InterpolatedIndex &index) const {
-  CHECK_GE(index.id, 0);
-  CHECK_LT(index.id, num_points_);
-
-  const MapPathPoint &ref_point = path_points_[index.id];
-  if (std::abs(index.offset) > kMathEpsilon) {
-    const common::math::Vec2d delta = unit_directions_[index.id] * index.offset;
-    MapPathPoint point({ref_point.x() + delta.x(), ref_point.y() + delta.y()},
-                       ref_point.heading());
-    if (index.id < num_segments_ && !ref_point.lane_waypoints().empty()) {
-      const LaneSegment &lane_segment = lane_segments_to_next_point_[index.id];
-      auto ref_lane_waypoint = ref_point.lane_waypoints()[0];
-      if (lane_segment.lane != nullptr) {
-        for (const auto &lane_waypoint : ref_point.lane_waypoints()) {
-          if (lane_waypoint.lane->id().id() == lane_segment.lane->id().id()) {
-            ref_lane_waypoint = lane_waypoint;
-            break;
-          }
-        }
-        point.add_lane_waypoint(
-            LaneWaypoint(lane_segment.lane, lane_segment.start_s + index.offset,
-                         ref_lane_waypoint.l));
-      }
-    }
-    if (point.lane_waypoints().empty() && !ref_point.lane_waypoints().empty()) {
-      point.add_lane_waypoint(ref_point.lane_waypoints()[0]);
-    }
-    return point;
-  } else {
-    return ref_point;
-  }
-}
 
 Path::Path(const std::vector<MapPathPoint> &path_points)
     : path_points_(path_points) {
@@ -361,8 +327,17 @@ void Path::InitPointIndex() {
   CHECK_EQ(last_point_index_.size(), num_sample_points_);
 }
 
-MapPathPoint Path::GetSmoothPoint(double s) const {
-  return GetSmoothPoint(GetIndexFromS(s));
+bool Path::GetLaneWidth(const double s, double *lane_left_width,
+                        double *lane_right_width) const {
+  CHECK_NOTNULL(lane_left_width);
+  CHECK_NOTNULL(lane_right_width);
+
+  if (s < 0.0 || s > length_) {
+    return false;
+  }
+  *lane_left_width = GetSample(lane_left_width_, s);
+  *lane_right_width = GetSample(lane_right_width_, s);
+  return true;
 }
 
 bool Path::GetProjection(const common::math::Vec2d &point, double *accumulate_s,
@@ -415,6 +390,87 @@ bool Path::GetProjection(const common::math::Vec2d &point, double *accumulate_s,
     *lateral = (prod > 0.0 ? 1 : -1) * *min_distance;
   }
   return true;
+}
+
+MapPathPoint Path::GetSmoothPoint(const InterpolatedIndex &index) const {
+  CHECK_GE(index.id, 0);
+  CHECK_LT(index.id, num_points_);
+
+  const MapPathPoint &ref_point = path_points_[index.id];
+  if (std::abs(index.offset) > kMathEpsilon) {
+    const common::math::Vec2d delta = unit_directions_[index.id] * index.offset;
+    MapPathPoint point({ref_point.x() + delta.x(), ref_point.y() + delta.y()},
+                       ref_point.heading());
+    if (index.id < num_segments_ && !ref_point.lane_waypoints().empty()) {
+      const LaneSegment &lane_segment = lane_segments_to_next_point_[index.id];
+      auto ref_lane_waypoint = ref_point.lane_waypoints()[0];
+      if (lane_segment.lane != nullptr) {
+        for (const auto &lane_waypoint : ref_point.lane_waypoints()) {
+          if (lane_waypoint.lane->id().id() == lane_segment.lane->id().id()) {
+            ref_lane_waypoint = lane_waypoint;
+            break;
+          }
+        }
+        point.add_lane_waypoint(
+            LaneWaypoint(lane_segment.lane, lane_segment.start_s + index.offset,
+                         ref_lane_waypoint.l));
+      }
+    }
+    if (point.lane_waypoints().empty() && !ref_point.lane_waypoints().empty()) {
+      point.add_lane_waypoint(ref_point.lane_waypoints()[0]);
+    }
+    return point;
+  } else {
+    return ref_point;
+  }
+}
+
+MapPathPoint Path::GetSmoothPoint(double s) const {
+  return GetSmoothPoint(GetIndexFromS(s));
+}
+
+InterpolatedIndex Path::GetIndexFromS(double s) const {
+  if (s <= 0.0) {
+    return {0, 0.0};
+  }
+  CHECK_GT(num_points_, 0);
+  if (s >= length_) {
+    return {num_points_ - 1, 0.0};
+  }
+  const int sample_id = static_cast<int>(s / kSampleDistance);
+  if (sample_id >= num_sample_points_) {
+    return {num_points_ - 1, 0.0};
+  }
+  const int next_sample_id = sample_id + 1;
+  int low = last_point_index_[sample_id];
+  int high = (next_sample_id < num_sample_points_
+                  ? std::min(num_points_, last_point_index_[next_sample_id] + 1)
+                  : num_points_);
+  while (low + 1 < high) {
+    const int mid = (low + high) / 2;
+    if (accumulated_s_[mid] <= s) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+  return {low, s - accumulated_s_[low]};
+}
+
+double Path::GetSample(const std::vector<double> &samples,
+                       const double s) const {
+  if (samples.empty()) {
+    return 0.0;
+  }
+  if (s <= 0.0) {
+    return samples[0];
+  }
+  const int idx = static_cast<int>(s / kSampleDistance);
+  if (idx >= num_sample_points_ - 1) {
+    return samples.back();
+  }
+  const double ratio = (s - idx * kSampleDistance) / kSampleDistance;
+  return samples[idx] * (1.0 - ratio) + samples[idx + 1] * ratio;
 }
 
 } // namespace hdmap

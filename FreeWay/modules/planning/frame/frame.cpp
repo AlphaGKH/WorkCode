@@ -1,4 +1,4 @@
-#include "modules/planning/frame/frame.h"
+﻿#include "modules/planning/frame/frame.h"
 
 #include "modules/common/math/polygon2d.h"
 #include "modules/common/vehicle_state/vehicle_state_provider.h"
@@ -26,8 +26,7 @@ bool Frame::Init(const std::list<ReferenceLine> &reference_lines) {
   }
 
   if (!CreateReferenceLineInfo(reference_lines)) {
-    const std::string msg = "Failed to init reference line info.";
-    AERROR << msg;
+    AERROR << "Failed to init reference line info.";
     return false;
   }
   return true;
@@ -50,7 +49,7 @@ bool Frame::InitFrameData() {
     const auto *collision_obstacle = FindCollisionObstacle();
     if (collision_obstacle != nullptr) {
       std::string err_str =
-          "Found collision with obstacle: " + collision_obstacle->Id();
+          "Found vehicle collision with obstacle: " + collision_obstacle->Id();
       AERROR << err_str;
       return false;
     }
@@ -109,7 +108,18 @@ const std::vector<const Obstacle *> Frame::obstacles() const {
   return obstacles_.Items();
 }
 
-const ReferenceLineInfo *Frame::FindDriveReferenceLineInfo() {}
+const ReferenceLineInfo *Frame::FindDriveReferenceLineInfo() {
+  double min_cost = std::numeric_limits<double>::infinity();
+  drive_reference_line_info_ = nullptr;
+  for (const auto &reference_line_info : reference_line_info_) {
+    if (reference_line_info.IsDrivable() &&
+        reference_line_info.Cost() < min_cost) {
+      drive_reference_line_info_ = &reference_line_info;
+      min_cost = reference_line_info.Cost();
+    }
+  }
+  return drive_reference_line_info_;
+}
 
 } // namespace planning
 

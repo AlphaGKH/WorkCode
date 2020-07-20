@@ -29,6 +29,8 @@ public:
     return segments_;
   }
 
+  double total_length() const { return total_length_; }
+
 public:
   using SampledWidth = std::pair<double, double>;
 
@@ -50,11 +52,11 @@ private:
   const Lane &lane_;
 
   std::vector<common::math::Vec2d> points_;
-  std::vector<double> headings_;
+  std::vector<common::math::LineSegment2d> segments_;
   std::vector<double> accumulated_s_;
   std::vector<common::math::Vec2d> unit_directions_;
+  std::vector<double> headings_;
   double total_length_ = 0.0;
-  std::vector<common::math::LineSegment2d> segments_;
 
   std::vector<SampledWidth> sampled_left_width_;
   std::vector<SampledWidth> sampled_right_width_;

@@ -21,19 +21,19 @@ public:
 public:
   bool Init(const std::list<ReferenceLine> &reference_lines);
 
-  void AddObstacle(const Obstacle &obstacle);
-
-  const Obstacle *FindCollisionObstacle() const;
-
-  const ReferenceLineInfo *FindDriveReferenceLineInfo();
-
 public:
   std::list<ReferenceLineInfo> *mutable_reference_line_info();
 
   const std::vector<const Obstacle *> obstacles() const;
 
+  const ReferenceLineInfo *FindDriveReferenceLineInfo();
+
 private:
   bool InitFrameData();
+
+  void AddObstacle(const Obstacle &obstacle);
+
+  const Obstacle *FindCollisionObstacle() const;
 
   bool CreateReferenceLineInfo(const std::list<ReferenceLine> &reference_lines);
 
@@ -46,6 +46,11 @@ private:
 private:
   std::list<ReferenceLineInfo> reference_line_info_;
   ThreadSafeIndexedObstacles obstacles_;
+
+  /**
+   * the reference line info that the vehicle finally choose to drive on
+   **/
+  const ReferenceLineInfo *drive_reference_line_info_ = nullptr;
 };
 
 } // namespace planning

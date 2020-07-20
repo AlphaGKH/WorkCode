@@ -2,11 +2,11 @@
 
 #include <string>
 
-#include "modules/common/proto/vehicle_config.pb.h"
 #include "modules/common/proto/pnc_point.pb.h"
+#include "modules/common/proto/vehicle_config.pb.h"
 
-#include "spider/common/macros.h"
 #include "modules/common/math/box2d.h"
+#include "spider/common/macros.h"
 
 /**
  * @namespace dharma::common
@@ -24,22 +24,22 @@ namespace common {
  */
 class VehicleConfigHelper {
 public:
-    /**
+  /**
    * @brief Initialize vehicle configurations with default configuration file
    * pointed by gflags FLAGS_vehicle_config_path. The code will crash if
    * FLAGS_vehicle_config_path does not exist or it points to a file with
    * invalid format.
    */
-    static void Init();
+  static void Init();
 
-    /**
-     * @brief Initialize vehicle configurations with \p config
-     * @param config A VehicleConfig class instance. The VehicleConfig class is
-     * defined by modules/common/configs/proto/vehicle_config.proto.
+  /**
+   * @brief Initialize vehicle configurations with \p config
+   * @param config A VehicleConfig class instance. The VehicleConfig class is
+   * defined by modules/common/configs/proto/vehicle_config.proto.
    */
-    static void Init(const VehicleConfig &config);
+  static void Init(const VehicleConfig &config);
 
-    /**
+  /**
    * @brief Initialize vehicle configurations with \p config_file.
    * The code will crash if \p config_file does not exist or \p config_file has
    * invalid format.
@@ -47,61 +47,27 @@ public:
    * defined by protobuf file
    * modules/common/configs/proto/vehicle_config.proto.
    */
-    static void Init(const std::string &config_file);
+  static void Init(const std::string &config_file);
 
-    /**
+  /**
    * @brief Get the current vehicle configuration.
    * @return the current VehicleConfig instance reference.
    */
-    static const VehicleConfig &GetConfig();
+  static const VehicleConfig &GetConfig();
 
-    /**
-   * @brief Get the safe turning radius when the vehicle is turning with
-   * maximum steering angle.
-   *
-   * The calculation is described by the following figure.
-   *  <pre>
-   *
-   *
-   *    front of car
-   * A +----------+ B
-   *   |          |
-   *   /          / turn with maximum steering angle
-   *   |          |
-   *   |          |
-   *   |          |
-   *   |    X     |                                       O
-   *   |<-->.<----|-------------------------------------->* (turn center)
-   *   |          |   VehicleParam.min_turn_radius()
-   *   |          |
-   * D +----------+ C
-   *    back of car
-   *
-   *  </pre>
-   *
-   *  In the above figure, The four corner points of the vehicle is A, B, C, and
-   * D. XO is VehicleParam.min_turn_radius(), X to AD is left_edge_to_center,
-   * X to AB is VehicleParam.front_edge_to_center(). Then
-   *     AO = sqrt((XO +  left_edge_to_center) ^2 + front_edge_to_center^2).
-   * @return AO in the above figure, which is the minimum turn radius when the
-   * vehicle turns with maximum steering angle
-   */
-
-    static double MinSafeTurnRadius();
-
-    /**
+  /**
    * @brief Get the box (four corners: ABCD) of the vehicle.
    * @param path_point of a vehicle (which contains point X and heading).
    * @return a box2d which contains the ABCD points info.
    */
-    static common::math::Box2d GetBoundingBox(
-            const common::PathPoint &path_point);
+  static common::math::Box2d
+  GetBoundingBox(const common::PathPoint &path_point);
 
 private:
-    static VehicleConfig vehicle_config_;
-    static bool is_init_;
-    DECLARE_SINGLETON(VehicleConfigHelper)
+  static VehicleConfig vehicle_config_;
+  static bool is_init_;
+  DECLARE_SINGLETON(VehicleConfigHelper)
 };
 
-}  // namespace common
-}  // namespace dharma
+} // namespace common
+} // namespace dharma

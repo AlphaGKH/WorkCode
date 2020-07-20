@@ -9,6 +9,6 @@ message Chassis {
   // chassis also needs it own sending timestamp
   optional dharma.common.Header header = 1;
   // Vehicle Speed in meters per second.
-  optional float speed_mps = 2 [default = nan];
+  optional double speed_mps = 2 [default = nan];
 
 }

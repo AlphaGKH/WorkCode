@@ -64,24 +64,5 @@ message Lane {
   repeated LaneSampleAssociation left_road_samples = 9;  // 车道中心点与最邻近左道路边界的关系
   repeated LaneSampleAssociation right_road_samples = 10; // 车道中心点与最邻近右道路边界的关系
 
-  enum LaneTurn {
-    NO_TURN = 0;
-    LEFT_TURN = 1;
-    RIGHT_TURN = 2;
-    U_TURN = 3;
-  };
-  optional LaneTurn turn = 11;
-
-  // Neighbor lanes on the same direction.
-  repeated Id left_neighbor_forward_lane_ids = 12;  // 本车道左边相邻的前向车道，这里前向指的是跟本车道同向吗？
-  repeated Id right_neighbor_forward_lane_ids = 13; // 本车道右边相邻的前向车道，
-
-  repeated Id left_neighbor_reverse_lane_ids = 14;  // 本车道左边相邻的反向车道，这里反向指的是跟本车道反向吗？
-  repeated Id right_neighbor_reverse_lane_ids = 15; // 本车道右边相邻的反向车道，
-
-  // All lanes can be driving into (or from).
-  repeated Id predecessor_ids = 16;       // 可以驶入本车道的其它车道的id
-  repeated Id successor_ids = 17;         // 本车道可以驶入的其它车道的id
-
 }
 

@@ -9,13 +9,9 @@ namespace planning {
 
 namespace util {
 
-bool IsVehicleStateValid(const common::VehicleState& vehicle_state);
-
-bool IsDifferentRouting(const routing::RoutingResponse& first,
-                        const routing::RoutingResponse& second);
-
+bool IsVehicleStateValid(const common::VehicleState &vehicle_state);
 }
 
-}
+} // namespace planning
 
-}
+} // namespace dharma

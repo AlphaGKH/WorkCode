@@ -13,12 +13,4 @@ message Header {
   // sequence_num, always starting from 1 on boot.
   optional uint32 sequence_num = 3;
 
-  // Lidar Sensor timestamp for nano-second.
-  optional uint64 lidar_timestamp = 4;
-
-  // Camera Sensor timestamp for nano-second.
-  optional uint64 camera_timestamp = 5;
-
-  // Radar Sensor timestamp for nano-second.
-  optional uint64 radar_timestamp = 6;
 }

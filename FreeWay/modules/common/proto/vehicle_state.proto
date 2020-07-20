@@ -2,7 +2,6 @@ syntax = "proto2";
 
 package dharma.common;
 
-import "modules/canbus/proto/chassis.proto";
 import "modules/localization/proto/pose.proto";
 
 message VehicleState {

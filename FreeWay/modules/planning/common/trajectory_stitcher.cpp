@@ -55,40 +55,6 @@ TrajectoryStitcher::ComputeReinitStitchingTrajectory(
   return std::vector<TrajectoryPoint>(1, reinit_point);
 }
 
-// only used in navigation mode
-void TrajectoryStitcher::TransformLastPublishedTrajectory(
-    const double x_diff, const double y_diff, const double theta_diff,
-    PublishableTrajectory *prev_trajectory) {
-  if (!prev_trajectory) {
-    return;
-  }
-
-  // R^-1
-  double cos_theta = std::cos(theta_diff);
-  double sin_theta = -std::sin(theta_diff);
-
-  // -R^-1 * t
-  auto tx = -(cos_theta * x_diff - sin_theta * y_diff);
-  auto ty = -(sin_theta * x_diff + cos_theta * y_diff);
-
-  std::for_each(prev_trajectory->begin(), prev_trajectory->end(),
-                [&cos_theta, &sin_theta, &tx, &ty,
-                 &theta_diff](common::TrajectoryPoint &p) {
-                  auto x = p.path_point().x();
-                  auto y = p.path_point().y();
-                  auto theta = p.path_point().theta();
-
-                  auto x_new = cos_theta * x - sin_theta * y + tx;
-                  auto y_new = sin_theta * x + cos_theta * y + ty;
-                  auto theta_new =
-                      common::math::NormalizeAngle(theta - theta_diff);
-
-                  p.mutable_path_point()->set_x(x_new);
-                  p.mutable_path_point()->set_y(y_new);
-                  p.mutable_path_point()->set_theta(theta_new);
-                });
-}
-
 /* Planning from current vehicle state if:
    1. the auto-driving mode is off
    (or) 2. we don't have the trajectory from last planning cycle
@@ -107,13 +73,6 @@ std::vector<TrajectoryPoint> TrajectoryStitcher::ComputeStitchingTrajectory(
     *replan_reason = "replan for no previous trajectory.";
     return ComputeReinitStitchingTrajectory(planning_cycle_time, vehicle_state);
   }
-
-  //  if (vehicle_state.driving_mode() != canbus::Chassis::COMPLETE_AUTO_DRIVE)
-  //  {
-  //    *replan_reason = "replan for manual mode.";
-  //    return ComputeReinitStitchingTrajectory(planning_cycle_time,
-  //    vehicle_state);
-  //  }
 
   size_t prev_trajectory_size = prev_trajectory->NumOfPoints();
 

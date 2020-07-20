@@ -31,8 +31,15 @@ file(GLOB PLANNING_SRCS
 )
 
 add_library(planning ${PLANNING_SRCS} ${PB_SRCS})
+#add_executable(planning main.cpp ${PLANNING_SRCS} ${PB_SRCS})
+
 target_link_libraries(planning
-    libabsl_strings.a
+    absl::strings
+    ${Boost_LIBRARIES}
     pthread
-    spider 
+    spider
     gflags)
+
+add_executable(planning_node main.cpp )
+target_link_libraries(planning_node planning)
+

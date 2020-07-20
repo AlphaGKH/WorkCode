@@ -20,17 +20,19 @@ public:
                ADCTrajectory *const adc_trajectory);
 
 private:
+  common::VehicleState AlignTimeStamp(const common::VehicleState &vehicle_state,
+                                      const double curr_timestamp) const;
   bool InitFrame(const uint32_t sequence_num,
                  const common::TrajectoryPoint &planning_start_point,
                  const common::VehicleState &vehicle_state,
                  std::list<ReferenceLine> ref_lines);
 
-  common::VehicleState AlignTimeStamp(const common::VehicleState &vehicle_state,
-                                      const double curr_timestamp) const;
-
   bool Plan(const double current_time_stamp,
             const std::vector<common::TrajectoryPoint> &stitching_trajectory,
             ADCTrajectory *const trajectory);
+
+  void FillPlanningPb(const double timestamp,
+                      ADCTrajectory *const trajectory_pb);
 
 private:
   std::unique_ptr<LatticePlanner> planner_;

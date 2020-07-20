@@ -1,5 +1,7 @@
 #pragma once
 
+#include "absl/strings/str_cat.h"
+
 #include "spider/common/log.h"
 
 #include "modules/common/math/vec2d.h"
@@ -41,7 +43,7 @@ struct LaneSegment {
   /**
    * Join neighboring lane segments if they have the same lane id
    */
-  static void Join(std::vector<LaneSegment> *segments) {}
+  static void Join(std::vector<LaneSegment> *segments);
 
   std::string DebugString() const;
 };
@@ -68,7 +70,7 @@ public:
 public:
   double heading() const { return heading_; }
 
-  //    void set_heading(const double heading) { heading_ = heading; }
+  void set_heading(const double heading) { heading_ = heading; }
 
   const std::vector<LaneWaypoint> &lane_waypoints() const {
     return lane_waypoints_;
@@ -83,7 +85,7 @@ public:
                            lane_waypoints.end());
   }
 
-  //    void clear_lane_waypoints() { lane_waypoints_.clear(); }
+  void clear_lane_waypoints() { lane_waypoints_.clear(); }
 
 public:
   static std::vector<MapPathPoint> GetPointsFromLane(LaneInfoConstPtr lane,
@@ -91,10 +93,7 @@ public:
                                                      const double end_s);
   static void RemoveDuplicates(std::vector<MapPathPoint> *points);
 
-  //    static std::vector<MapPathPoint> GetPointsFromSegment(
-  //            const LaneSegment& segment);
-
-  //    std::string DebugString() const;
+  std::string DebugString() const;
 
 protected:
   double heading_ = 0.0;
@@ -137,17 +136,16 @@ public:
   bool GetLaneWidth(const double s, double *lane_left_width,
                     double *lane_right_width) const;
 
+  bool GetProjection(const common::math::Vec2d &point, double *accumulate_s,
+                     double *lateral) const; // get
+  bool GetProjection(const common::math::Vec2d &point, double *accumulate_s,
+                     double *lateral, double *distance) const;
+
   // Return smooth coordinate by interpolated index or accumulate_s.
   MapPathPoint GetSmoothPoint(const InterpolatedIndex &index) const;
   MapPathPoint GetSmoothPoint(double s) const;
 
   InterpolatedIndex GetIndexFromS(double s) const;
-
-public:
-  bool GetProjection(const common::math::Vec2d &point, double *accumulate_s,
-                     double *lateral) const;
-  bool GetProjection(const common::math::Vec2d &point, double *accumulate_s,
-                     double *lateral, double *distance) const;
 
 protected:
   void Init();
@@ -159,20 +157,22 @@ protected:
   double GetSample(const std::vector<double> &samples, const double s) const;
 
 protected:
-  int num_points_ = 0;
-  int num_segments_ = 0;
   std::vector<MapPathPoint> path_points_;
-  std::vector<common::math::LineSegment2d> segments_;
-  std::vector<double> accumulated_s_;
+  int num_points_ = 0;
 
-  std::vector<LaneSegment> lane_segments_;
-  std::vector<double> lane_accumulated_s_;
+  std::vector<double> accumulated_s_;
+  double length_ = 0.0;
+  std::vector<common::math::LineSegment2d> segments_;
+  int num_segments_ = 0;
+
+  std::vector<common::math::Vec2d> unit_directions_;
 
 protected:
-  double length_ = 0.0;
-  std::vector<common::math::Vec2d> unit_directions_;
+  std::vector<LaneSegment> lane_segments_;
+  std::vector<double> lane_accumulated_s_;
   std::vector<LaneSegment> lane_segments_to_next_point_;
 
+protected:
   // Sampled every fixed length.
   int num_sample_points_ = 0;
   std::vector<double> lane_left_width_;

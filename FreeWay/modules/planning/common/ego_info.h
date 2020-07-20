@@ -18,9 +18,6 @@ public:
 public:
   bool Update(const common::VehicleState &vehicle_state);
 
-  void Clear();
-
-public:
   common::math::Box2d ego_box() const { return ego_box_; }
 
 private:

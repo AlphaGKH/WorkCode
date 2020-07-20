@@ -16,10 +16,13 @@ ReferenceLineInfo::ReferenceLineInfo(
       reference_line_(reference_line) {}
 
 bool ReferenceLineInfo::Init(const std::vector<const Obstacle *> &obstacles) {
+
   const auto &param = common::VehicleConfigHelper::GetConfig().vehicle_param();
   // stitching point
   const auto &path_point = adc_planning_point_.path_point();
+
   common::math::Vec2d position(path_point.x(), path_point.y());
+
   common::math::Vec2d vec_to_center(
       (param.front_edge_to_center() - param.back_edge_to_center()) / 2.0,
       (param.left_edge_to_center() - param.right_edge_to_center()) / 2.0);
@@ -28,6 +31,7 @@ bool ReferenceLineInfo::Init(const std::vector<const Obstacle *> &obstacles) {
                              vec_to_center.rotate(path_point.theta()));
   common::math::Box2d box(center, path_point.theta(), param.length(),
                           param.width());
+
   // realtime vehicle position
   common::math::Vec2d vehicle_position(vehicle_state_.x(), vehicle_state_.y());
   common::math::Vec2d vehicle_center(
@@ -55,12 +59,10 @@ bool ReferenceLineInfo::Init(const std::vector<const Obstacle *> &obstacles) {
   }
 
   // set lattice planning target speed limit;
+  // 这里设置为整个系统中所允许的最大速度，在实际规划时还要根据
+  // reference_line的限速重新赋值
   SetLatticeCruiseSpeed(FLAGS_default_cruise_speed);
   return true;
-}
-
-void ReferenceLineInfo::SetTrajectory(const DiscretizedTrajectory &trajectory) {
-  discretized_trajectory_ = trajectory;
 }
 
 } // namespace planning
