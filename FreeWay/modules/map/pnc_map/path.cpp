@@ -284,7 +284,8 @@ void Path::InitWidth() {
 
       road_left_width_.push_back(FLAGS_default_lane_width / 2.0);
       road_right_width_.push_back(FLAGS_default_lane_width / 2.0);
-      AWARN << "path point:" << point.DebugString() << " has invalid width.";
+      //      AWARN << "path point:" << point.DebugString() << " has invalid
+      //      width.";
     } else {
       const LaneWaypoint waypoint = point.lane_waypoints()[0];
       CHECK_NOTNULL(waypoint.lane);

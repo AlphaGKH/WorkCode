@@ -2,8 +2,6 @@ syntax = "proto2";
 
 package dharma.common;
 
-import "modules/common/proto/header.proto";
-
 message VehicleParam {
 
   optional double front_edge_to_center = 1 [default = nan];
@@ -17,6 +15,5 @@ message VehicleParam {
 }
 
 message VehicleConfig {
-  optional dharma.common.Header header = 1;
-  optional VehicleParam vehicle_param = 2;
+  optional VehicleParam vehicle_param = 1;
 }

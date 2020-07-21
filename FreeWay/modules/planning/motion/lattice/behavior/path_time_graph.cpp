@@ -193,7 +193,8 @@ PathTimeGraph::GetPathBlockingIntervals(const double t) const {
   CHECK(time_range_.first <= t && t <= time_range_.second);
   std::vector<std::pair<double, double>> intervals;
   for (const auto &pt_obstacle : path_time_obstacles_) {
-    if (t > pt_obstacle.max_t() || t < pt_obstacle.min_t()) {
+    if (t > pt_obstacle.bottom_right_point().t() ||
+        t < pt_obstacle.bottom_left_point().t()) {
       continue;
     }
     double s_upper = lerp(pt_obstacle.upper_left_point().s(),
