@@ -56,7 +56,7 @@ bool Planning::RunOnce(const LocalView &local_view,
     vehicle_state = AlignTimeStamp(vehicle_state, start_timestamp);
   }
 
-  const double planning_cycle_time = 100.0;
+  const double planning_cycle_time = 0.1;
 
   // 轨迹拼接
   std::string replan_reason;

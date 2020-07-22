@@ -41,9 +41,8 @@ namespace math {
  *
  * @param T Number type: double or float
  */
-template <typename T>
-class EulerAnglesZXY {
- public:
+template <typename T> class EulerAnglesZXY {
+public:
   /**
    * @brief Constructs an identity rotation.
    */
@@ -79,6 +78,7 @@ class EulerAnglesZXY {
                          static_cast<T>(2.0) * (Square<T>(qw) + Square<T>(qz)) -
                              static_cast<T>(1.0))),
         pitch_(std::asin(static_cast<T>(2.0) * (qw * qx + qy * qz))),
+
         yaw_(std::atan2(static_cast<T>(2.0) * (qw * qz - qx * qy),
                         static_cast<T>(2.0) * (Square<T>(qw) + Square<T>(qy)) -
                             static_cast<T>(1.0))) {}
@@ -154,7 +154,7 @@ class EulerAnglesZXY {
     return {qw, qx, qy, qz};
   }
 
- private:
+private:
   T roll_;
   T pitch_;
   T yaw_;
@@ -163,6 +163,6 @@ class EulerAnglesZXY {
 using EulerAnglesZXYf = EulerAnglesZXY<float>;
 using EulerAnglesZXYd = EulerAnglesZXY<double>;
 
-}  // namespace math
-}  // namespace common
-}  // namespace dharma
+} // namespace math
+} // namespace common
+} // namespace dharma

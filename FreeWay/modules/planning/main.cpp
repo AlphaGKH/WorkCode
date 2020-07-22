@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <fstream>
+
 int main() {
 
   std::unique_ptr<dharma::planning::Planning> planning_ptr_;
@@ -20,27 +22,22 @@ int main() {
 
   dharma::perception::PerceptionObstacle ob;
   ob.set_id(1);
-  ob.mutable_position()->set_x(-1.0);
-  ob.mutable_position()->set_y(80.0);
+  ob.mutable_position()->set_x(0.0);
+  ob.mutable_position()->set_y(60.0);
   ob.mutable_position()->set_z(0.85);
   ob.set_theta(M_PI / 2.0);
   ob.set_length(5.0);
-  ob.set_width(2.0);
+  ob.set_width(1.0);
   ob.set_height(1.7);
 
   dharma::prediction::PredictionObstacle pred_ob;
   pred_ob.mutable_perception_obstacle()->CopyFrom(ob);
 
-  //
-
   pred_obs.mutable_header()->set_module_name("predict");
   pred_obs.mutable_header()->set_sequence_num(1);
   pred_obs.mutable_header()->set_timestamp_sec(time_stamp);
-  //  auto pred = pred_obs.add_prediction_obstacle();
-  //  pred->CopyFrom(pred_ob);
-
-  //  std::cout << pred_obs.prediction_obstacle(0).perception_obstacle().id()
-  //            << std::endl;
+  auto pred = pred_obs.add_prediction_obstacle();
+  pred->CopyFrom(pred_ob);
 
   dharma::localization::Localization loca;
   loca.set_measurement_time(time_stamp);
@@ -50,10 +47,10 @@ int main() {
   p.mutable_position()->set_y(0);
   p.mutable_position()->set_z(1.0);
 
-  p.mutable_orientation()->set_qx(0.7071);
+  p.mutable_orientation()->set_qw(1);
+  p.mutable_orientation()->set_qx(0.0);
   p.mutable_orientation()->set_qy(0.0);
   p.mutable_orientation()->set_qz(0.0);
-  p.mutable_orientation()->set_qw(0.7071);
 
   p.mutable_linear_acceleration_vrf()->set_x(0);
   p.mutable_linear_acceleration_vrf()->set_y(0);
@@ -66,14 +63,14 @@ int main() {
   loca.mutable_pose()->CopyFrom(p);
   loca.mutable_header()->set_module_name("localization");
   loca.mutable_header()->set_sequence_num(1);
-  loca.mutable_header()->set_timestamp_sec(time_stamp + 0.001);
+  loca.mutable_header()->set_timestamp_sec(time_stamp + 0.01);
 
   dharma::canbus::Chassis chassis;
-  chassis.set_speed_mps(0.0);
+  chassis.set_speed_mps(3.0);
 
   chassis.mutable_header()->set_module_name("canbus");
   chassis.mutable_header()->set_sequence_num(1);
-  chassis.mutable_header()->set_timestamp_sec(time_stamp + 0.003);
+  chassis.mutable_header()->set_timestamp_sec(time_stamp + 0.03);
 
   dharma::planning::LocalView local_view;
 
@@ -88,16 +85,26 @@ int main() {
   for (int i = 0; i < 3; i++) {
     std::vector<dharma::planning::ReferencePoint> rps;
     rps.clear();
-    rps.reserve(200);
-    for (int j = 0; j < 200; j++) {
+    rps.reserve(210);
+    for (int j = -10; j < 200; j++) {
       dharma::hdmap::MapPathPoint mp;
-      mp.set_x(-1 + i);
+      mp.set_x(-4 + i * 4);
       mp.set_y(j);
       mp.set_heading(M_PI / 2.0);
       dharma::planning::ReferencePoint rp(mp, 0.0, 0.0);
       rps.emplace_back(rp);
     }
     ref_lines.emplace_back(rps);
+
+    if (0) {
+      std::string fname = "reference_line" + std::to_string(i) + ".csv";
+      std::fstream openfile(fname, std::ios::ate | std::ios::out);
+      for (const auto &point : rps) {
+        openfile << point.x() << "," << point.y() << "," << point.heading()
+                 << "\n";
+      }
+      openfile.close();
+    }
   }
 
   // 本周期规划结果traj
@@ -105,13 +112,13 @@ int main() {
   // 返回值res为true表示本周期规划成功
   bool res = planning_ptr_->RunOnce(local_view, ref_lines, &traj);
 
-  if (res) {
-    std::cout << "Planning Success!" << std::endl;
-    //    for (const auto &point : traj.trajectory_point()) {
-    //      std::cout << point.path_point().x() << " " << point.path_point().y()
-    //                << " " << std::endl;
-    //    }
-  }
+  //  if (res) {
+  //    std::cout << "Planning Success!" << std::endl;
+  //    for (const auto &point : traj.trajectory_point()) {
+  //      std::cout << point.path_point().x() << " " << point.path_point().y()
+  //                << " " << std::endl;
+  //    }
+  //  }
 
   //  }
 

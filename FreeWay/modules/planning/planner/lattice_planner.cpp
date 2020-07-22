@@ -198,12 +198,15 @@ bool LatticePlanner::PlanOnReferenceLine(
 
   size_t num_lattice_traj = 0;
 
+  size_t num = 0;
   while (trajectory_evaluator.has_more_trajectory_pairs()) {
     double trajectory_pair_cost =
         trajectory_evaluator.top_trajectory_pair_cost();
     auto trajectory_pair = trajectory_evaluator.next_top_trajectory_pair();
 
     // combine two 1d trajectories to one 2d trajectory
+    num++;
+    std::cout << num << std::endl;
     auto combined_trajectory = TrajectoryCombiner::Combine(
         *ptr_reference_line, *trajectory_pair.first, *trajectory_pair.second,
         planning_init_point.relative_time());
