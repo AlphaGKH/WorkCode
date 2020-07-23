@@ -14,11 +14,11 @@ message Pose {
   // world coordinate (East/North/Up).
   optional dharma.common.Quaternion orientation = 2;
 
-  // Linear acceleration of the VRP in the vehicle reference frame.
+  // Linear acceleration of the VRP
   // Right/forward/up in meters per square second.
   optional dharma.common.Point3D linear_acceleration_vrf = 3;
 
-  // Angular velocity of the VRP in the vehicle reference frame.
+  // Angular velocity of the VRP
   // Around right/forward/up axes in radians per second.
   optional dharma.common.Point3D angular_velocity_vrf = 4;
 }

@@ -1,6 +1,7 @@
 #include "modules/planning/planner/lattice_planner.h"
 
-#include "spider/time/time.h"
+#include <fstream>
+#include <string>
 
 #include "modules/common/math/cartesian_frenet_conversion.h"
 #include "modules/common/math/path_matcher.h"
@@ -74,12 +75,9 @@ bool LatticePlanner::Plan(const TrajectoryPoint &planning_start_point,
     } else {
       reference_line_info.SetPriorityCost(0.0);
     }
-    auto status =
-        PlanOnReferenceLine(planning_start_point, frame, &reference_line_info);
 
-    if (status != true) {
-      AERROR << "Planner failed";
-    } else {
+    if (PlanOnReferenceLine(planning_start_point, frame,
+                            &reference_line_info)) {
       success_line_count += 1;
     }
     ++index;
@@ -95,15 +93,7 @@ bool LatticePlanner::PlanOnReferenceLine(
     const common::TrajectoryPoint &planning_init_point, Frame *frame,
     ReferenceLineInfo *reference_line_info) {
 
-  static size_t num_planning_cycles = 0;
   static size_t num_planning_succeeded_cycles = 0;
-
-  double start_time = spider::Time::Now().ToSecond();
-  double current_time = start_time;
-
-  ADEBUG << "Number of planning cycles: " << num_planning_cycles << " "
-         << num_planning_succeeded_cycles;
-  ++num_planning_cycles;
 
   // 1. obtain a reference line and transform it to the PathPoint format.
   auto ptr_reference_line =
@@ -121,10 +111,6 @@ bool LatticePlanner::PlanOnReferenceLine(
   std::array<double, 3> init_d;
   ComputeInitFrenetState(matched_point, planning_init_point, &init_s, &init_d);
 
-  ADEBUG << "ReferenceLine and Frenet Conversion Time = "
-         << (spider::Time::Now().ToSecond() - current_time) * 1000;
-  current_time = spider::Time::Now().ToSecond();
-
   auto ptr_prediction_querier = std::make_shared<PredictionQuerier>(
       frame->obstacles(), ptr_reference_line);
 
@@ -140,14 +126,6 @@ bool LatticePlanner::PlanOnReferenceLine(
   reference_line_info->SetLatticeCruiseSpeed(speed_limit);
 
   PlanningTarget planning_target = reference_line_info->planning_target();
-  if (planning_target.has_stop_point()) {
-    ADEBUG << "Planning target stop s: " << planning_target.stop_point().s()
-           << "Current ego s: " << init_s[0];
-  }
-
-  ADEBUG << "Decision_Time = "
-         << (spider::Time::Now().ToSecond() - current_time) * 1000;
-  current_time = spider::Time::Now().ToSecond();
 
   // 5. generate 1d trajectory bundle for longitudinal and lateral respectively.
   Trajectory1dGenerator trajectory1d_generator(
@@ -157,10 +135,6 @@ bool LatticePlanner::PlanOnReferenceLine(
   trajectory1d_generator.GenerateTrajectoryBundles(
       planning_target, &lon_trajectory1d_bundle, &lat_trajectory1d_bundle);
 
-  ADEBUG << "Trajectory_Generation_Time = "
-         << (spider::Time::Now().ToSecond() - current_time) * 1000;
-  current_time = spider::Time::Now().ToSecond();
-
   // 6. first, evaluate the feasibility of the 1d trajectories according to
   // dynamic constraints.
   //   second, evaluate the feasible longitudinal and lateral trajectory pairs
@@ -169,15 +143,6 @@ bool LatticePlanner::PlanOnReferenceLine(
       init_s, planning_target, lon_trajectory1d_bundle, lat_trajectory1d_bundle,
       ptr_path_time_graph, ptr_reference_line);
 
-  ADEBUG << "Trajectory_Evaluator_Construction_Time = "
-         << (spider::Time::Now().ToSecond() - current_time) * 1000;
-  current_time = spider::Time::Now().ToSecond();
-
-  ADEBUG << "number of trajectory pairs = "
-         << trajectory_evaluator.num_of_trajectory_pairs()
-         << "  number_lon_traj = " << lon_trajectory1d_bundle.size()
-         << "  number_lat_traj = " << lat_trajectory1d_bundle.size();
-
   // Get instance of collision checker and constraint checker
   CollisionChecker collision_checker(frame->obstacles(), init_s[0], init_d[0],
                                      *ptr_reference_line, reference_line_info,
@@ -185,7 +150,6 @@ bool LatticePlanner::PlanOnReferenceLine(
 
   // 7. always get the best pair of trajectories to combine; return the first
   // collision-free trajectory.
-  size_t constraint_failure_count = 0;
   size_t collision_failure_count = 0;
   size_t combined_constraint_failure_count = 0;
 
@@ -198,15 +162,14 @@ bool LatticePlanner::PlanOnReferenceLine(
 
   size_t num_lattice_traj = 0;
 
-  size_t num = 0;
+  static int num_index = 0;
+
   while (trajectory_evaluator.has_more_trajectory_pairs()) {
     double trajectory_pair_cost =
         trajectory_evaluator.top_trajectory_pair_cost();
     auto trajectory_pair = trajectory_evaluator.next_top_trajectory_pair();
 
     // combine two 1d trajectories to one 2d trajectory
-    num++;
-    std::cout << num << std::endl;
     auto combined_trajectory = TrajectoryCombiner::Combine(
         *ptr_reference_line, *trajectory_pair.first, *trajectory_pair.second,
         planning_init_point.relative_time());
@@ -251,70 +214,36 @@ bool LatticePlanner::PlanOnReferenceLine(
     }
 
     // put combine trajectory into debug data
-    const auto &combined_trajectory_points = combined_trajectory;
     num_lattice_traj += 1;
     reference_line_info->SetTrajectory(combined_trajectory);
     reference_line_info->SetCost(reference_line_info->PriorityCost() +
                                  trajectory_pair_cost);
     reference_line_info->SetDrivable(true);
 
-    // Print the chosen end condition and start condition
-    ADEBUG << "Starting Lon. State: s = " << init_s[0] << " ds = " << init_s[1]
-           << " dds = " << init_s[2];
-    // cast
-    auto lattice_traj_ptr =
-        std::dynamic_pointer_cast<LatticeTrajectory1d>(trajectory_pair.first);
-    if (!lattice_traj_ptr) {
-      ADEBUG << "Dynamically casting trajectory1d ptr. failed.";
-    }
-
-    if (lattice_traj_ptr->has_target_position()) {
-      ADEBUG << "Ending Lon. State s = " << lattice_traj_ptr->target_position()
-             << " ds = " << lattice_traj_ptr->target_velocity()
-             << " t = " << lattice_traj_ptr->target_time();
-    }
-
-    ADEBUG << "InputPose";
-    ADEBUG << "XY: " << planning_init_point.ShortDebugString();
-    ADEBUG << "S: (" << init_s[0] << ", " << init_s[1] << "," << init_s[2]
-           << ")";
-    ADEBUG << "L: (" << init_d[0] << ", " << init_d[1] << "," << init_d[2]
-           << ")";
-
-    ADEBUG << "Reference_line_priority_cost = "
-           << reference_line_info->PriorityCost();
-    ADEBUG << "Total_Trajectory_Cost = " << trajectory_pair_cost;
-    ADEBUG << "OutputTrajectory";
-    for (uint i = 0; i < 10; ++i) {
-      ADEBUG << combined_trajectory_points[i].ShortDebugString();
-    }
-
+    num_index++;
     break;
   }
 
-  ADEBUG << "Trajectory_Evaluation_Time = "
-         << (spider::Time::Now().ToSecond() - current_time) * 1000;
-
-  ADEBUG << "Step CombineTrajectory Succeeded";
-
-  ADEBUG << "1d trajectory not valid for constraint ["
-         << constraint_failure_count << "] times";
-  ADEBUG << "Combined trajectory not valid for ["
-         << combined_constraint_failure_count << "] times";
-  ADEBUG << "Trajectory not valid for collision [" << collision_failure_count
-         << "] times";
-  ADEBUG << "Total_Lattice_Planning_Frame_Time = "
-         << (spider::Time::Now().ToSecond() - start_time) * 1000;
+  if (1) {
+    std::string fname = "trajectory" + std::to_string(num_index) + ".csv";
+    std::fstream openfile(fname, std::ios::ate | std::ios::out);
+    for (const auto &point : reference_line_info->trajectory()) {
+      openfile << point.path_point().x() << "," << point.path_point().y() << ","
+               << point.path_point().theta() << ","
+               << point.path_point().kappa() << ","
+               << point.path_point().dkappa() << "," << point.path_point().s()
+               << "," << point.v() << "," << point.a() << ","
+               << point.relative_time() << "\n ";
+    }
+    openfile.close();
+  }
 
   if (num_lattice_traj > 0) {
-    ADEBUG << "Planning succeeded";
     num_planning_succeeded_cycles += 1;
     reference_line_info->SetDrivable(true);
     return true;
   } else {
-    AERROR << "Planning failed";
     if (FLAGS_enable_backup_trajectory) {
-      AERROR << "Use backup trajectory";
       BackupTrajectoryGenerator backup_trajectory_generator(
           init_s, init_d, planning_init_point.relative_time(),
           std::make_shared<CollisionChecker>(collision_checker),

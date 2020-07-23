@@ -10,13 +10,6 @@ message SLPoint {
   optional double l = 2;
 }
 
-message FrenetFramePoint {
-  optional double s = 1;
-  optional double l = 2;
-  optional double dl = 3;
-  optional double ddl = 4;
-}
-
 message SpeedPoint {
   optional double s = 1;
   optional double t = 2;
@@ -51,11 +44,6 @@ message PathPoint {
   // derivative of x and y w.r.t parametric parameter t in CosThetareferenceline
   optional double x_derivative = 10;
   optional double y_derivative = 11;
-}
-
-message Path {
-  optional string name = 1;
-  repeated PathPoint path_point = 2;
 }
 
 message TrajectoryPoint {

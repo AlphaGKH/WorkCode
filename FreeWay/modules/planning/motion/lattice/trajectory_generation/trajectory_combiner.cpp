@@ -1,7 +1,6 @@
 #include "modules/planning/motion/lattice/trajectory_generation/trajectory_combiner.h"
 
 #include <algorithm>
-#include <fstream>
 
 #include "modules/common/math/cartesian_frenet_conversion.h"
 #include "modules/common/math/path_matcher.h"
@@ -15,13 +14,9 @@ using dharma::common::TrajectoryPoint;
 using dharma::common::math::CartesianFrenetConverter;
 using dharma::common::math::PathMatcher;
 
-int TrajectoryCombiner::index = 0;
-
 DiscretizedTrajectory TrajectoryCombiner::Combine(
     const std::vector<PathPoint> &reference_line, const Curve1d &lon_trajectory,
     const Curve1d &lat_trajectory, const double init_relative_time) {
-
-  index++;
   DiscretizedTrajectory combined_trajectory;
 
   double s0 = lon_trajectory.Evaluate(0, 0.0);
@@ -98,22 +93,6 @@ DiscretizedTrajectory TrajectoryCombiner::Combine(
     t_param = t_param + FLAGS_trajectory_time_resolution;
 
     prev_trajectory_point = trajectory_point.path_point();
-  }
-
-  if (1) {
-    std::string fname = "comb_traj" + std::to_string(index) + ".csv";
-    std::fstream openfile(fname, std::ios::ate | std::ios::out);
-    for (const auto &point : combined_trajectory) {
-      openfile << point.path_point().x() << ","
-               << point.path_point().y() /* << ","
-<< point.path_point().theta() << ","
-<< point.path_point().kappa() << ","
-<< point.path_point().dkappa() << "," << point.path_point().s()
-<< "," << point.v() << "," << point.a() << ","
-<< point.relative_time() */
-               << "\n ";
-    }
-    openfile.close();
   }
 
   return combined_trajectory;
